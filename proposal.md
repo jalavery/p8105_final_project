@@ -14,7 +14,27 @@ Due: 11/7/2019
 
 ## The tentative project title
 
+Geographic variation in unhealthy behaviors and endometrium cancer
+across 500 cities in the U.S.A
+
 ## The motivation for this project
+
+Uterine cancer is the most commonly diagnosed gynecologic malignancy and
+the fourth leading cancer among American women, with an estimated 63,230
+new cases and 11,350 deaths in 2018. Endometrial cancer, accounting for
+92% of uterine cancer, is associated with prolonged unopposed estrogen
+exposure, such as hormone replacement therapy and obesity. Dietary
+patterns, body mass index (BMI), and reproductive factors, such as early
+age at menarche and late age of first child birth and menopause, and
+other behavior or environmental factors can increase women’s risk of
+endometrium cancer. Additionally, racial disparity also contributes
+greatly to endometrial cancer incidence and mortality. African-American
+women have a lower risk of endometrial cancer occurrence while a
+significantly higher risk for cancer-specific mortality than white
+women. Geographic pattern of endometrial cancer will help to identify
+high risk area of target cancer population, and the health behavior of
+the area will provide the evidence for future intervention
+implementation and assessments.
 
 ## The intended final products
 
