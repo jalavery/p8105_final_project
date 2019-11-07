@@ -113,19 +113,30 @@ tract response to each measure is in its own column on the same row.
 
 ## The planned timeline:
 
-After submitting the proposal, we will meet as a team the week of
-November 11th to walk through the plan for the remainder of the project
-and brainstorm anticipated roadbloacks that we will encounter along the
-way. We will also clearly define the components of the deliverable and
-divide the responsibilities accordingly.
+**Week of November 11th**
 
-The week of November 18th each team member will work on a draft form of
-their piece of the project, to be circulated to the team via email by
-Sunday, November 24.
+Project review meeting with assigned TA.
 
-The week of November 25, we will put the pieces of the webpage together
-into the actual webiste and draft an outline for the screencast.
+We will meet as a team the week of November 11th to walk through the
+plan for the remainder of the project and brainstorm anticipated
+roadbloacks that we will encounter along the way. We will also clearly
+define the components of the deliverable and divide the responsibilities
+accordingly.
 
-The week of December 2 we will finalize the analyses, visualizations and
-overall presentation of the webpage and film the screencast. The final
-webpage and screencast will be submitted on Dec 5 by 4pm.
+**Week of November 18th**
+
+Each team member will work on a draft form of their piece of the
+project, to be circulated to the team via email by Sunday, November 24.
+
+**Week of November 25th**
+
+*Thanksgiving Week*
+
+We will put the pieces of the webpage together into the actual webiste
+and draft an outline for the screencast.
+
+**Week of December 2nd**
+
+We will finalize the analyses, visualizations and overall presentation
+of the webpage and film the screencast. The final webpage and screencast
+will be submitted on Dec 5 by 4pm.
