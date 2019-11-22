@@ -1,0 +1,159 @@
+---
+title: "Model Building"
+author: "Jessica Lavery"
+date: "11/17/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(tidycensus)
+
+# references
+# https://walkerke.github.io/tidycensus/articles/basic-usage.html
+
+# set theme for ggplot
+theme_set(theme_bw() + theme(legend.position = "bottom"))
+```
+
+```{r, message=FALSE}
+# read in dataset, keep records at the census tract level
+raw_data <- readRDS("./data/df_500_cities.RDS") %>% 
+  janitor::clean_names() %>% 
+  filter(geographic_level == "Census Tract")
+
+# clean up data to prepare for a model
+tidy_data <- raw_data %>% 
+  filter(category == "Unhealthy Behaviors" | short_question_text %in% c("Mental Health", "Health Insurance", "Physical Health")) %>% 
+  pivot_wider(id_cols = c(year, state_abbr, state_desc, city_name, geographic_level, geo_location, tract_fips),
+              names_from = short_question_text,
+              values_from = data_value) %>% 
+  janitor::clean_names()
+
+# apply api key
+key <- census_api_key("ae24453f5cbe5a92b368876f673eafffbec7b673")
+
+# get list of variables available in the 2015 5-year ACS estimates
+# looked through this dataset to identify variables to pull below
+vars_acs <- load_variables(2015, "acs5")
+
+# look at concepts
+look <- tibble(concepts = unique(sort(pull(vars_acs,concept))))
+
+# for each state in the 500 cities dataset, pull the relevant ACS variables
+states <- tibble(states = unique(sort(pull(tidy_data, state_abbr))))
+
+#50 states + DC
+# nrow(states)
+
+# for each state, pull the ACS data
+# this code works
+acs_data <- states %>% 
+  # filter(states %in% c("New York", "Alabama")) %>% #for testing code only
+  mutate(acs_data = map(states, ~get_acs(geography = "tract", state = .x, 
+                                         variable = c("B01001_001", "B01001_002", "B01001_026", #sex
+                                                      "B06009_001", "B06009_002", #education
+                                                      "B02001_001", "B02001_002"), #race
+                                         year = 2015))) %>% 
+  unnest(cols = c(acs_data)) %>% 
+  pivot_wider(id_cols = c(GEOID, NAME),
+              names_from = variable,
+              values_from = estimate) %>% 
+  mutate(pct_male = round(100*B01001_002/B01001_001, 2),
+         pct_female = round(100*B01001_026/B01001_001, 2),
+         pct_ltHS = round(100*B06009_002/B06009_001, 2),
+         pct_white = round(100*B02001_002/B02001_001, 2)) %>% 
+  select(-starts_with("B0"))
+
+# combine ACS data with 500 cities data
+tidy_data_acs <- left_join(tidy_data, acs_data, by = c("tract_fips" = "GEOID"))
+```
+
+
+## Build model for mental health as an outcome
+
+```{r, message=FALSE}
+# look at distribution of data to determine fit of a model
+# data are skewed, but not terribly so, will run linear model and then bootstrap for standard errors
+ggplot(data = tidy_data_acs, aes(x = mental_health)) +
+  geom_histogram() +
+  labs(title = "Distribution of the Percent of Adults at the Census-Tract Level with Poor Mental Health",
+       caption = "Poor mental health defined as the % of adults who report that their mental health is not good for 14+ days in the past month.")
+```
+
+```{r}
+# run linear model with unhealthy behaviors as only predictors
+mdl_mental_heatlh <- lm(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white, data = tidy_data_acs)
+
+# review model output
+# summary(mdl_mental_heatlh)
+# mdl_mental_heatlh %>% broom::glance()
+# coef(mdl_mental_heatlh)
+
+broom::tidy(mdl_mental_heatlh) %>% 
+  mutate(term = case_when(term == "physical_inactivity" ~ "% Without physicial activity",
+                          term == "current_smoking" ~ "% Current smokers",
+                          term == "health_insurance" ~ "% Without health insurance",
+                          term == "pct_male" ~ "%  Male",
+                          term == "pct_ltHS" ~ "% With less than high school education",
+                          term == "pct_white" ~ "% White",
+                          TRUE ~ term)) %>% 
+  knitr::kable(digits = c(2, 2, 2, 2, 2), format.args	= list(p.value = format.pval(digits = 3)))
+
+# diagnostics
+diagnostic_mh <- tidy_data_acs %>% 
+  modelr::add_residuals(mdl_mental_heatlh) %>% 
+  modelr::add_predictions(mdl_mental_heatlh)
+
+# plot diagnostics
+ggplot(data = diagnostic_mh, aes(x = pct_male, y = resid)) + 
+  geom_point()
+
+# look at unadjusted associations
+ggplot(data = tidy_data, aes(x = health_insurance, y = mental_health)) +
+  geom_point() +
+  geom_smooth()
+
+ggplot(data = tidy_data, aes(x = current_smoking, y = mental_health)) +
+  geom_point() +
+  geom_smooth()
+
+#are unhealthy behaviors correlated with each other?
+ggplot(data = tidy_data, aes(x = current_smoking, y = binge_drinking)) +
+  geom_point() +
+  geom_smooth()
+```
+
+## Assess model fit
+```{r}
+
+```
+
+## Hypothesis testing
+
+Because the outcome is slightly skewed, instead of relying on traditional frameworks for assessing the significance of each variable, we will bootstrap to estimate the standard errors. 
+
+```{r}
+# 1. select bootstrap samples
+bootstrap_samples <- tidy_data_acs %>% 
+  modelr::bootstrap(n = 10)
+
+# 2. on each bootstrapped sample, run a linear model and extract relevant information 
+bootstrap_models <- bootstrap_samples %>% 
+  mutate(models = map(strap, ~lm(tmax ~ tmin, data = .x)),
+         results = map(models, broom::tidy),
+         r2 = map(models, broom::glance)) %>% 
+  select(-strap, -models) %>%
+  unnest(c(results, r2), names_repair = "universal") %>% 
+  select(.id, term, estimate, r.squared) %>% 
+  pivot_wider(id_cols = c(.id, r.squared),
+              names_from = term,
+              values_from = estimate) %>% 
+  rename(beta0 = `(Intercept)`, beta1 = "tmin") %>% 
+  mutate(logb0b1 = log(beta0 * beta1)) 
+```
+
