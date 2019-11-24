@@ -1,0 +1,15 @@
+name: "Final Project"
+output_dir: "."
+navbar:
+  title: "Home"
+  right:
+    - text: "Project Report"
+      href: 
+    - icon: fa-envelope fa-lg
+      href: mailto:<jl4443@cumc.columbia.edu>
+    - icon: fa-github fa-lg
+      href: https://github.com/jalavery/p8105_final_project
+      
+output:
+  html_document:
+    theme: lumen
