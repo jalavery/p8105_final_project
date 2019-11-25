@@ -80,8 +80,9 @@ tidy_data_acs <- left_join(tidy_data, acs_data, by = c("tract_fips" = "GEOID"))
 # look at distribution of data to determine fit of a model
 # data are skewed, but not terribly so, will run linear model and then bootstrap for standard errors
 ggplot(data = tidy_data_acs, aes(x = mental_health)) +
-  geom_histogram() +
-  labs(title = "Distribution of the Percent of Adults at the Census-Tract Level with Poor Mental Health",
+  geom_histogram(bins = 40) +
+  labs(x = "% of Adults with mental health not good for ≥14 days",
+       y = "Count", title = "Distribution of the Percent of Adults at the Census-Tract Level with Poor Mental Health",
        caption = "Poor mental health defined as the % of adults who report that their mental health is not good for 14+ days in the past month.")
 ```
 
@@ -101,36 +102,28 @@ broom::tidy(mdl_mental_heatlh) %>%
                           term == "pct_male" ~ "%  Male",
                           term == "pct_ltHS" ~ "% With less than high school education",
                           term == "pct_white" ~ "% White",
-                          TRUE ~ term)) %>% 
-  knitr::kable(digits = c(2, 2, 2, 2, 2), format.args	= list(p.value = format.pval(digits = 3)))
+                          TRUE ~ term),
+         p.value = format.pval(p.value, digits = 3, eps = 0.001)) %>% 
+  knitr::kable(digits = c(2, 2, 2, 2, 2))
 
-# diagnostics
+```
+
+## Assess model fit
+
+The residuals are evenly dispersed around the predicted values, indicating that there are no obvious problems with the model.
+
+```{r}
+# add diagnostics to data frame
 diagnostic_mh <- tidy_data_acs %>% 
   modelr::add_residuals(mdl_mental_heatlh) %>% 
   modelr::add_predictions(mdl_mental_heatlh)
 
 # plot diagnostics
-ggplot(data = diagnostic_mh, aes(x = pct_male, y = resid)) + 
-  geom_point()
-
-# look at unadjusted associations
-ggplot(data = tidy_data, aes(x = health_insurance, y = mental_health)) +
-  geom_point() +
-  geom_smooth()
-
-ggplot(data = tidy_data, aes(x = current_smoking, y = mental_health)) +
-  geom_point() +
-  geom_smooth()
-
-#are unhealthy behaviors correlated with each other?
-ggplot(data = tidy_data, aes(x = current_smoking, y = binge_drinking)) +
-  geom_point() +
-  geom_smooth()
-```
-
-## Assess model fit
-```{r}
-
+ggplot(data = diagnostic_mh, aes(x = pred, y = resid)) + 
+  geom_point() + 
+  geom_hline(yintercept = 0, color = "gray") + 
+  labs(x = "Predicted value",
+      y = "Residual")
 ```
 
 ## Hypothesis testing
