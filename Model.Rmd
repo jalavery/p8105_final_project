@@ -2,7 +2,7 @@
 title: "Model Building"
 author: "Jessica Lavery"
 date: "11/17/2019"
-output: html_document
+output: github_document
 editor_options: 
   chunk_output_type: console
 ---
@@ -157,7 +157,7 @@ ggplot(data = diagnostic_mh, aes(x = pred, y = resid)) +
       y = "Residual")
 ```
 
-## Hypothesis testing
+## Hypothesis testing (do we want to bootstrap?)
 
 Because the outcome is slightly skewed, instead of relying on traditional frameworks for assessing the significance of each variable, we will bootstrap to estimate the standard errors. 
 
