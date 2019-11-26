@@ -73,6 +73,34 @@ acs_data <- states %>%
 tidy_data_acs <- left_join(tidy_data, acs_data, by = c("tract_fips" = "GEOID"))
 ```
 
+## Basic summary plots to potentially include on the website
+
+```{r}
+summaries_by_city <- tidy_data_acs %>% 
+  group_by(state_desc, city_name) %>% 
+  summarize_if(is.numeric, mean, na.rm = TRUE) %>% 
+  mutate(city_state = paste0(city_name, ", ", state_desc)) %>% 
+  ungroup()
+
+# cities with best and worst mental health
+worst_mh <- summaries_by_city %>% 
+  top_n(10, mental_health) 
+
+best_mh <- summaries_by_city %>% 
+  top_n(-10, mental_health) 
+
+extremes_mh <- bind_rows(worst_mh, best_mh)
+
+extremes_mh %>% 
+  arrange(mental_health) %>% 
+  ggplot(aes(x = reorder(city_state, -desc(mental_health)), y = mental_health)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Cities with the top 10 best and worst mental health in the US",
+       x = "",
+       y = "% of Adults with mental health not good for ≥14 days")
+```
+
 
 ## Build model for mental health as an outcome
 
@@ -89,6 +117,9 @@ ggplot(data = tidy_data_acs, aes(x = mental_health)) +
 ```{r}
 # run linear model with unhealthy behaviors as only predictors
 mdl_mental_heatlh <- lm(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white, data = tidy_data_acs)
+
+# try hierarchical model
+# mdl_mental_heatlh_random <- lme4::lmer(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white + (1 | city_name), data = tidy_data_acs)
 
 # review model output
 # summary(mdl_mental_heatlh)
@@ -137,16 +168,19 @@ bootstrap_samples <- tidy_data_acs %>%
 
 # 2. on each bootstrapped sample, run a linear model and extract relevant information 
 bootstrap_models <- bootstrap_samples %>% 
-  mutate(models = map(strap, ~lm(tmax ~ tmin, data = .x)),
+  mutate(models = map(strap, ~lm(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white, data = .x)),
          results = map(models, broom::tidy),
          r2 = map(models, broom::glance)) %>% 
   select(-strap, -models) %>%
   unnest(c(results, r2), names_repair = "universal") %>% 
   select(.id, term, estimate, r.squared) %>% 
-  pivot_wider(id_cols = c(.id, r.squared),
-              names_from = term,
-              values_from = estimate) %>% 
-  rename(beta0 = `(Intercept)`, beta1 = "tmin") %>% 
-  mutate(logb0b1 = log(beta0 * beta1)) 
+  group_by(term) %>% 
+  summarize(boot_se = sd(estimate),
+            rsq = mean(r.squared))
+
+
+  # pivot_wider(id_cols = c(.id, r.squared),
+  #             names_from = term,
+  #             values_from = estimate) 
 ```
 
