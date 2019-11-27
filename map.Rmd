@@ -1,0 +1,170 @@
+---
+title: "Mental health map"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(plotly)
+library(sf)
+library(tidycensus)
+library(mapview)
+options(tigris_use_cache = TRUE)
+
+token <- paste(readLines("map_files/mapbox_token"), collapse = "")
+Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiZm9yZGhvbGxhbmQiLCJhIjoiY2szNmFjenZ2MWZobTNkbW13cHZmbmx6MyJ9.gBJzMKvozUNzXAZ-uvW4tQ')
+
+df = readRDS("data/df_500_cities.RDS") %>% janitor::clean_names()
+tract_geoms = readRDS("data/tract_geoms.RDS")
+```
+
+
+## top layer
+
+```{r}
+df_cities = df %>%
+  filter(geographic_level == "City",
+         measure == "Mental health not good for >=14 days among adults aged >=18 Years",
+         data_value_type == "Crude prevalence") %>%
+  mutate(
+    lat = str_extract(geo_location, "-?\\d+\\.?\\d*") %>% 
+      as.numeric(),# %>% 
+    #round(1),
+    lon = str_extract(geo_location, "\\s-?\\d+\\.?\\d*") %>% 
+      as.numeric() %>% #round(1) %>% 
+      str_trim(c("both"))
+  ) %>% 
+  select(city_name, lat, lon, data_value) %>% 
+  distinct()
+
+p <- df_cities %>%
+  plot_mapbox(
+    lat = ~lat,
+    lon = ~lon,
+    color = ~data_value,
+    marker = list(),
+    type = 'scattermapbox',
+    hovertext = df_cities[,"city_name"]
+  ) %>%
+  layout(
+    mapbox = list(
+      style = 'dark',
+      accesstoken = token,
+      zoom = 2.5, # their's is 4, minZoom = 3, maxZoom = 12
+      center = list(lon = -96.416, lat = 37.58))
+  )
+
+p
+```
+
+
+## bottom layer scatter
+
+```{r}
+df_tracts = df %>%
+  filter(geographic_level == "Census Tract",
+         measure == "Mental health not good for >=14 days among adults aged >=18 Years",
+         data_value_type == "Crude prevalence") %>%
+  mutate(
+    lat = str_extract(geo_location, "-?\\d+\\.?\\d*") %>% 
+      as.numeric(),# %>% 
+    #round(1),
+    lon = str_extract(geo_location, "\\s-?\\d+\\.?\\d*") %>% 
+      as.numeric() %>% #round(1) %>% 
+      str_trim(c("both"))
+  ) %>% 
+  select(city_name, lat, lon, data_value, city_fips, tract_fips) %>% 
+  distinct()
+
+p_base <- df_tracts %>%
+  plot_mapbox(
+    lat = ~lat,
+    lon = ~lon,
+    color = ~data_value,
+    marker = list(),
+    type = 'scattermapbox',
+    hovertext = df_cities[,"city_name"]
+  ) %>%
+  layout(
+    mapbox = list(
+      style = 'dark',
+      accesstoken = token,
+      zoom = 2.5, # their's is 4, 
+      minZoom = 10, 
+      maxZoom = 12.5,
+      center = list(lon = -96.416, lat = 37.58))
+  )
+
+p_base
+```
+
+
+## testing layers
+
+```{r}
+p <- df_cities %>%
+  plot_mapbox(
+    lat = ~lat,
+    lon = ~lon,
+    #color = "blue",
+    marker = list(color = "blue", size = 10),
+    type = 'scattermapbox',
+    hovertext = df_cities[,"city_name"]
+  ) %>%
+  layout(
+    mapbox = list(
+      style = 'dark',
+      accesstoken = token,
+      zoom = 2.5, # their's is 4, minZoom = 3, maxZoom = 12
+      center = list(lon = -96.416, lat = 37.58))
+  )
+
+p %>% 
+  add_trace(
+    data = df_tracts,
+    lat = ~lat,
+    lon = ~lon,
+    #color = "red",
+    marker = list(color = "red", size = 5),
+    type = 'scattermapbox',
+    hovertext = df_cities[,"city_name"]
+  ) %>%
+  layout(
+    mapbox = list(
+      style = 'dark',
+      accesstoken = token,
+      zoom = 2.5, # their's is 4, minZoom = 3, maxZoom = 12
+      minZoom = 10, 
+      maxZoom = 12,
+      center = list(lon = -96.416, lat = 37.58))
+  )
+```
+
+
+## testing choropleth
+
+```{r}
+ny <- get_acs(geography = "tract", 
+              variables = "B19013_001", 
+              state = "NY", 
+              county = "New York", 
+              geometry = TRUE)
+
+mapview(ny, zcol = "estimate", legend = TRUE)
+
+# works but way too slow
+# plot_mapbox(ny, split = ~GEOID, color = ~moe) %>% 
+#   layout(
+#     mapbox = list(
+#       style = 'dark',
+#       accesstoken = token,
+#       zoom = 2.5, # their's is 4, minZoom = 3, maxZoom = 12
+#       center = list(lon = -96.416, lat = 37.58))
+#   )
+```
+
+
+
+
