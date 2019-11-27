@@ -1,0 +1,19 @@
+---
+title: "Census tracts for landfill data"
+author: "Kylie Wheelock Riley"
+date: "11/27/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidycensus)
+```
+
+Load in data 
+```{r}
+landfill_df = read_csv(file = "./data/Solid_Waste_Landfill_Facilities.csv") %>% 
+  janitor::clean_names()
+```
+
