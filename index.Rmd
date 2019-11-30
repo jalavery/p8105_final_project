@@ -6,6 +6,14 @@ output:
     toc_float: true
 ---
 
+<center>
+<figure>
+<img src = "images/brain_pic.png" style = "width:75%">
+
+*Image from* [*SARCOIDOSIS UK*](https://www.sarcoidosisuk.org/support/sarcoidosis-and-mental-health/)
+</figure>
+</center>
+
 ## Introduction
 
 ## Presentation
