@@ -16,12 +16,19 @@ output:
 
 ## Introduction
 
+The World Health Organization (WHO), defines mental health as “a state of well-being in which the individual realizes his or her own abilities, can cope with the normal stresses of life, can work productively and fruitfully, and is able to make a contribution to his or her community.” This definition demonstrates how mental health is an important aspect of overall wellness. In recent years there has been an emphasis on breaking down the stigma surrounding mental health and talking about it more openly. With this project we wanted to better understand what behaviors are associated with positive mental health and the distribution of rates of mental health in the United States. 
+
 ## Presentation
 
 ## Data
-This project utilizes data from the [500 cities dataset](https://www.cdc.gov/500cities/index.htm), publicly available for download [here](https://catalog.data.gov/dataset/500-cities-local-data-for-better-health-fc759). The data are based on the [Behavioral Risk Factor Surveillance System (BRFSS)](https://www.cdc.gov/brfss/) survey, which is a national survey of adults' behavior surrounding their health (risk behavior, use of preventative services, chronic conditions). Data are summarized using small area estimation methods and are not reported on the individual level, but at the census-tract level and include geographic identifiers such as latitude and longitude, city Federal Information Processing Standards (FIPS) and census tract FIPS. 
+This project utilizes data from the [500 cities dataset](https://www.cdc.gov/500cities/index.htm), publicly available for download [here](https://catalog.data.gov/dataset/500-cities-local-data-for-better-health-fc759). The data are based on the [Behavioral Risk Factor Surveillance System (BRFSS)](https://www.cdc.gov/brfss/) survey, which is a national survey of adults' behavior surrounding their health (risk behavior, use of preventative services, chronic conditions). 
 
-The 500 cities data source includes data on health outcomes such as asthma, arthritis, cancer, heart disease, and mental health, along with data on unhealthy behaviors such as drinking, smoking, and obesity. 
+Data are summarized using small area estimation methods and are not reported on the individual level, but at the census-tract level and include geographic identifiers such as latitude and longitude, city Federal Information Processing Standards (FIPS) and census tract FIPS. 
+
+The 500 cities data source includes health data on outcomes such as asthma, arthritis, cancer, heart disease, and mental health. To assess mental health, respondents aged ≥18 years were asked if 14 or more days out of the past 30 days their mental health was not good.
+
+
+Thre is also data on unhealthy behaviors such as drinking, smoking, and obesity. 
 
 ## Methods
 
