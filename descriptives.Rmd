@@ -1,0 +1,54 @@
+---
+title: "Descriptive Figures"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(patchwork)
+
+# set theme for ggplot
+theme_set(theme_bw() + theme(legend.position = "bottom"))
+
+# load tidied 500 cities + ACS data
+load("./data/tidy_data_acs.Rdata")
+```
+
+## Basic summary plots to potentially include on the website
+
+```{r}
+summaries_by_city <- tidy_data_acs %>% 
+  group_by(state_desc, city_name) %>% 
+  summarize_if(is.numeric, mean, na.rm = TRUE) %>% 
+  mutate(city_state = paste0(city_name, ", ", state_desc)) %>% 
+  ungroup()
+
+# cities with best and worst mental health
+worst_mh <- summaries_by_city %>% 
+  top_n(10, mental_health) %>% 
+  ggplot(aes(x = reorder(city_state, -desc(mental_health)), y = mental_health)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Cities with the bottom 10 mental health in the US",
+       x = "",
+       y = "% of Adults with mental health not good for ≥14 days") +
+  scale_y_continuous(limits = c(0, 100)) +
+  coord_flip()
+
+best_mh <- summaries_by_city %>% 
+  top_n(-10, mental_health) %>% 
+  ggplot(aes(x = reorder(city_state, -desc(mental_health)), y = mental_health)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Cities with the top 10 mental health in the US",
+       x = "",
+       y = "% of Adults with mental health not good for ≥14 days") +
+  scale_y_continuous(limits = c(0, 100)) +
+  coord_flip()
+
+# panel figures
+best_mh / worst_mh
+```
+

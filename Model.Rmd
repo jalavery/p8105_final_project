@@ -1,0 +1,121 @@
+---
+title: "Model Building"
+author: "Jessica Lavery"
+date: "11/17/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(broom.mixed)
+
+# set theme for ggplot
+theme_set(theme_bw() + theme(legend.position = "bottom"))
+
+# load tidied 500 cities + ACS data
+load("./data/tidy_data_acs.Rdata")
+```
+
+## Build model with mental health as an outcome
+
+```{r, message=FALSE}
+# look at distribution of data to determine fit of a model
+# data are skewed, but not terribly so, will run linear model and then bootstrap for standard errors
+ggplot(data = tidy_data_acs %>% drop_na(mental_health), aes(x = mental_health)) +
+  geom_histogram(bins = 40) +
+  labs(x = "% of Adults with mental health not good for ≥14 days",
+       y = "Count", title = "Distribution of the Percent of Adults at the Census-Tract Level with Poor Mental Health",
+       caption = "Poor mental health defined as the % of adults who report that their mental health is not good for 14+ days in the past month.")
+```
+
+
+```{r, include=FALSE, eval=FALSE}
+# first pass at model: fixed effects model
+# run linear model with unhealthy behaviors as only predictors
+mdl_mental_heatlh <- lm(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white, data = tidy_data_acs )
+
+# review model output
+# summary(mdl_mental_heatlh)
+# mdl_mental_heatlh %>% broom::glance()
+# coef(mdl_mental_heatlh)
+
+broom::tidy(mdl_mental_heatlh) %>% 
+  mutate(term = case_when(term == "physical_inactivity" ~ "% Without physicial activity",
+                          term == "current_smoking" ~ "% Current smokers",
+                          term == "health_insurance" ~ "% Without health insurance",
+                          term == "pct_male" ~ "%  Male",
+                          term == "pct_ltHS" ~ "% With less than high school education",
+                          term == "pct_white" ~ "% White",
+                          TRUE ~ term),
+         p.value = format.pval(p.value, digits = 3, eps = 0.001)) %>% 
+  knitr::kable(digits = c(2, 2, 2, 2, 2))
+
+# add diagnostics to data frame
+diagnostic_mh <- tidy_data_acs %>% 
+  modelr::add_residuals(mdl_mental_heatlh) %>% 
+  modelr::add_predictions(mdl_mental_heatlh)
+
+# plot diagnostics
+# The residuals are evenly dispersed around the predicted values, indicating that there are no obvious problems with the model.
+ggplot(data = diagnostic_mh, aes(x = pred, y = resid)) + 
+  geom_point() + 
+  geom_hline(yintercept = 0, color = "gray") + 
+  labs(x = "Predicted value",
+      y = "Residual")
+```
+
+Looking at the distribution of the data at the census-tract level, the % of adults with poor mental health for 14+ days out of the last 30 is slightly skewed. Due to the large sample size we will proceed with a linear model and ignore the slight skeweness in the data. 
+
+The linear model was adjusted for factors identified a priori; a model-building process was not employed. Factors included the percent of adults without leisure-time physical activity, percent of adults that were current smokers, the percent of adults without health insurance (all from the 500 cities dataset) in addition to the percent male, with less than high school education, and white (from the American Community Survey data). The model is clustered at the city level, accounting for repeated measures at the census tract level within each city. 
+
+We can see that a higher percentage of adults without physical activity is associated with better mental health. Smoking and lack health insurance were associated with poorer mental health. A higher percentage of men, white adults, and adults with less than a high school education were associated with a lower percentage of adults with poorer mental health. 
+
+```{r}
+# hierarchical model
+mdl_mh_random <- nlme::lme(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white, random = ~ 1 | city_state, data = tidy_data_acs %>% drop_na())
+
+# get model output from random effects model
+broom.mixed::tidy(mdl_mh_random) %>% 
+  filter(effect == "fixed") %>% 
+  mutate(term = case_when(term == "physical_inactivity" ~ "% Without physicial activity",
+                          term == "current_smoking" ~ "% Current smokers",
+                          term == "health_insurance" ~ "% Without health insurance",
+                          term == "pct_male" ~ "% Male",
+                          term == "pct_ltHS" ~ "% With less than high school education",
+                          term == "pct_white" ~ "% White",
+                          TRUE ~ term),
+         p.value = format.pval(p.value, digits = 3, eps = 0.001)) %>% 
+  select(-effect, -group, -df, -statistic) %>% 
+  knitr::kable(digits = c(2, 3, 3, 2, 2))
+```
+
+From the adjusted model, below are the cities with the best and worst mental health.
+
+```{r}
+pred <- as_tibble(predict(mdl_mh_random, tidy_data_acs %>% drop_na(), level = 0:1)) %>% 
+  group_by(city_state) %>% 
+  summarize_if(is.numeric, mean, na.rm = TRUE) %>% 
+  ungroup()
+
+# cities with best and worst mental health
+worst_mh <- pred %>% 
+  top_n(10, predict.city_state) %>% 
+  mutate(category = "Worst predicted mental health") %>% 
+  arrange(desc(predict.city_state))
+
+best_mh <- pred %>% 
+  top_n(-10, predict.city_state) %>% 
+  mutate(category = "Best predicted mental health") %>% 
+  arrange(predict.city_state)
+
+# comebine into table
+bind_rows(worst_mh, best_mh) %>% 
+  select(category, city_state, predict.city_state) %>% 
+  rename(`Predicted % adults with poor mental health` = predict.city_state) %>% 
+  knitr::kable(digits = c(1, 1, 2))
+```
+
