@@ -14,6 +14,26 @@ library(tigris)
 Load in data 
 ```{r}
 landfill_df = read_csv(file = "./data/Solid_Waste_Landfill_Facilities.csv") %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  select(-zip4, -telephone, -type, -status, -naics_code, -source, -sourcedate, -val_method, -val_date, -website, -reg_id, -statusdate, -owner, -close_date, -permit_no)
 ```
+
+```{r}
+census.tracts = tracts(state = "DE")
+plot(census.tracts)
+census.tracts.fort = fortify(census.tracts)
+```
+
+Get census tract
+```{r}
+landfill_df %>% 
+  filter(
+    state == "DE"
+  ) %>% 
+ mutate(
+   census_code = apply(landfill_df, 1, function(row) call_geolocator_latlon(row['latitude'], row['longitude']))
+ )
+```
+
+
 
