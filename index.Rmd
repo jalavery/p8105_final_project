@@ -1,5 +1,5 @@
 ---
-title: "Geographic variation in unhealthy behaviors and mental health across 500 cities in the U.S.A"
+title: "Happy Cities: Factors Associated with Geographic Variation in Mental Health Status across 500 Cities in USA"
 output: 
   html_document:
     toc: true
@@ -29,14 +29,10 @@ The 500 cities data source includes health data on outcomes such as asthma, arth
 
 
 Thre is also data on unhealthy behaviors such as drinking, smoking, and obesity. 
-=======
-## Introduction
 
-## Presentation
+## Methods
 
-## Data
-This project utilizes data from the [500 cities dataset](https://www.cdc.gov/500cities/index.htm), publicly available for download [here](https://catalog.data.gov/dataset/500-cities-local-data-for-better-health-fc759). The data are based on the [Behavioral Risk Factor Surveillance System (BRFSS)](https://www.cdc.gov/brfss/) survey, which is a national survey of adults' behavior surrounding their health (risk behavior, use of preventative services, chronic conditions). Data are summarized using small area estimation methods and are not reported on the individual level, but at the census-tract level and include geographic identifiers such as latitude and longitude, city Federal Information Processing Standards (FIPS) and census tract FIPS. 
+## Results
 
-The 500 cities data source includes data on health outcomes such as asthma, arthritis, cancer, heart disease, and mental health, along with data on unhealthy behaviors such as drinking, smoking, and obesity. 
-
+## Discussion
 

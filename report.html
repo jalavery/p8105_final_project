@@ -276,8 +276,12 @@ $(document).ready(function () {
         
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li>
+        <li class="dropdown-header">Maps</li>
+<li>
   <a href="report.html">Project Report</a>
+</li>
+<li>
+  <a href="descriptives.html">Descriptives</a>
 </li>
 <li>
   <a href="mailto:&lt;jl4443@cumc.columbia.edu&gt;">
@@ -305,9 +309,18 @@ $(document).ready(function () {
 </div>
 
 
-<div id="report" class="section level2">
-<h2>Report</h2>
-</div>
+<p><strong>Motivation &amp; Related Work</strong></p>
+<p>The goal of this project was to better understand the relationship between health behaviors and self reported mental health, as well as distribution of mental health accross the 500 cities dataset.</p>
+<p>We were inspired to complete this analysis from seeing how the 500 cities datset was utilited in a prior project for the P8105 class, <a href="https://alc2279.github.io/p8105_final_project/">The Heart Project</a>.</p>
+<p><strong>Initial questions</strong></p>
+<p>When we started this project we were interested in looking at cancer, specifically uterine cancer, as an endpoint. Our plan was to explore the health behaviors associated with uterine cancer, and look at geographic variation in the uterine cancer rates. The 500 Cities dataset includes data on cancer, but after further exploration we discovered that the cancer variable available was for all cancers except for melanoma, and the group felt that the data was too general to do a meaningful analysis.</p>
+<p>We switched our outcome to mental health because we felt it was a timely and interesting topic, and because the data supported the scope of the project. We continuted with our plan to look at the association of health behaviors with mental health as the outcome and to look at the geographic variation.</p>
+<p><strong>Introduction</strong></p>
+<p>Mental illness is one of the most common medical conditions in the United States. In 2017 alone, 46.6 million Americans lived with a mental illness, approximately 20% of the U.S. population <a href="https://www.nimh.nih.gov/health/statistics/mental-illness.shtml#part_154785">source</a>. More than 10 million (4.6%) American adults had a serious mental illness which substantially interferes with, or limits, one or more major life activities. Geographic variation in mental health has drawn attention in the health care community. In a report from the Sleep Help, most of the best U.S. cities for mental health are located in the West or Midwest, and none are located in the Northeast <a href="https://www.sleephelp.org/cities-best-mental-health-sleep/#the-15-cities-reporting-the-best-mental-health">source</a>. Mental health and many common mental disorders are shaped to a great extent by the social, economic, and physical environments in which people live. Factors that potentially contribute to the variation are not well understood and need further study.</p>
+<p><strong>Dataset and Methodology</strong></p>
+<p>The Centers for Disease Control and Prevention’s (CDC) 500 Cities 2018 data was used for this analysis, linked with American Community Survey census tract data. All data is for the population 18 years and over. The 500 Cities Project is to provide city- and census tract-level health data in the largest 500 cities in the US, including chronic disease risk factors, health outcomes, and clinical preventive service use. The primary outcome is self-reported mental health where adults are considered to be in good mental health if they report being in good mental for a majority of days in a given month. Cities were ranked based on the percentage of adults reporting good mental health.</p>
+<p>A random effect ?? model was developed to examine the geographic variation across cities, including the covariates of ???</p>
+<p>Geocoding:</p>
 
 
 

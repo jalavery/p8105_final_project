@@ -7,7 +7,7 @@ navbar:
       href: 
     - text: "Project Report"
       href: report.html
-    - text: "Descriptive"
+    - text: "Descriptives"
       href: descriptives.html
     - icon: fa-envelope fa-lg
       href: mailto:<jl4443@cumc.columbia.edu>
