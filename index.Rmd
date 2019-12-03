@@ -1,5 +1,5 @@
 ---
-title: "Geographic variation in unhealthy behaviors and mental health across 500 cities in the U.S.A"
+title: "The Happy Cities: Geographic variation in unhealthy behaviors and mental health across 500 cities in the U.S.A"
 output: 
   html_document:
     toc: true
@@ -16,7 +16,7 @@ output:
 
 ## Introduction
 
-The World Health Organization (WHO), defines mental health as “a state of well-being in which the individual realizes his or her own abilities, can cope with the normal stresses of life, can work productively and fruitfully, and is able to make a contribution to his or her community.” This definition demonstrates how mental health is an important aspect of overall wellness. In recent years there has been an emphasis on breaking down the stigma surrounding mental health and talking about it more openly. With this project we wanted to better understand what behaviors are associated with positive mental health and the distribution of rates of mental health in the United States. 
+The World Health Organization (WHO), defines mental health as “a state of well-being in which the individual realizes his or her own abilities, can cope with the normal stresses of life, can work productively and fruitfully, and is able to make a contribution to his or her community.” This definition demonstrates how mental health is an important aspect of overall wellness. Mental illness, however, is one of the most common medical statuses in the United States. In 2017 alone, 46.6 million Americans live with a mental illness, accounting for approximately 20% of the U.S. population. And, more than 10 million (4.6%) American adults had a serious mental illness which substantially interferes with or limit one or more major life activities. Geographic variation in mental health has drawn attention in the health care community.  In a recent report, most of the best cities for mental health are located in the West or Midwest, and none are located in the Northeast. Mental health and many common mental disorders are shaped to a great extent by the social, economic, and physical environments in which people live. Factors that potentially contribute to the variation are not well understood and need further study. With this project we wanted to better understand what behaviors are positively associated with mental health and the distribution of rates of mental health in the United States. 
 
 ## Presentation
 
