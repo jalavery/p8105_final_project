@@ -45,7 +45,7 @@ The 500 cities data source includes data on health outcomes such as asthma, arth
 
 The Centers for Disease Control and Prevention’s (CDC) 500 Cities 2018 data was used for this analysis, linked with American Community Survey census tract data. All data is for the population 18 years and over. The 500 Cities Project is to provide city- and census tract-level health data in the largest 500 cities in the US, including chronic disease risk factors, health outcomes, and clinical preventive service use. The primary outcome is self-reported mental health where adults are considered to be in good mental health if they report being in good mental for a majority of days in a given month. Cities were ranked based on the percentage of adults reporting good mental health.
 
-A random effect ?? model was developed to examine the geographic variation across cities, including the covariates of ???
+We also merged data from the [American Community Survey (ACS)](https://www.census.gov/programs-surveys/acs/data.html)
 
 
 ## Exploratory Analysis
@@ -135,7 +135,7 @@ ggplot(data = diagnostic_mh, aes(x = pred, y = resid)) +
 
 Looking at the distribution of the data at the census-tract level, the % of adults with poor mental health for 14+ days out of the last 30 is slightly skewed. Due to the large sample size we will proceed with a linear model and ignore the slight skeweness in the data. 
 
-The linear model was adjusted for factors identified a priori; a model-building process was not employed. Factors included the percent of adults without leisure-time physical activity, percent of adults that were current smokers, the percent of adults without health insurance (all from the 500 cities dataset) in addition to the percent male, with less than high school education, and white (from the American Community Survey data). The model is clustered at the city level, accounting for repeated measures at the census tract level within each city. 
+A random effects model was developed to examine the geographic variation across cities. The linear model was adjusted for factors identified a priori; a model-building process was not employed. Factors included the percent of adults without leisure-time physical activity, percent of adults that were current smokers, the percent of adults without health insurance (all from the 500 cities dataset) in addition to the percent male, with less than high school education, and white (from the American Community Survey data). The model is clustered at the city level, accounting for repeated measures at the census tract level within each city. 
 
 We can see that a higher percentage of adults without physical activity is associated with better mental health. Smoking and lack health insurance were associated with poorer mental health. A higher percentage of men, white adults, and adults with less than a high school education were associated with a lower percentage of adults with poorer mental health. 
 
@@ -183,3 +183,5 @@ bind_rows(worst_mh, best_mh) %>%
   rename(`Predicted % adults with poor mental health` = predict.city_state) %>% 
   knitr::kable(digits = c(1, 1, 2))
 ```
+
+## Discussion
