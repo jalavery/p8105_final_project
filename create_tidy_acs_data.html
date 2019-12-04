@@ -10,11 +10,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Kylie Wheelock Riley" />
 
-<meta name="date" content="2019-11-27" />
 
-<title>Census tracts for landfill data</title>
+<title>Create Tidy Dataset: 500 cities + American Community Survey Data</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -278,7 +276,15 @@ $(document).ready(function () {
         
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown-header">Project Report</li>
+        <li>
+  <a href="dashboard.html">Maps</a>
+</li>
+<li>
+  <a href="report.html">Project Report</a>
+</li>
+<li>
+  <a href="descriptives.html">Descriptive</a>
+</li>
 <li>
   <a href="mailto:&lt;jl4443@cumc.columbia.edu&gt;">
     <span class="fa fa-envelope fa-lg"></span>
@@ -300,30 +306,18 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Census tracts for landfill data</h1>
-<h4 class="author">Kylie Wheelock Riley</h4>
-<h4 class="date">11/27/2019</h4>
+<h1 class="title toc-ignore">Create Tidy Dataset: 500 cities + American Community Survey Data</h1>
+<h4 class="date">12/1/2019</h4>
 
 </div>
 
 
-<p>Load in data</p>
-<pre class="r"><code>landfill_df = read_csv(file = &quot;./data/Solid_Waste_Landfill_Facilities.csv&quot;) %&gt;% 
-  janitor::clean_names()</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   .default = col_character(),
-##   X = col_double(),
-##   Y = col_double(),
-##   OBJECTID = col_double(),
-##   SWID = col_double(),
-##   LATITUDE = col_double(),
-##   LONGITUDE = col_double(),
-##   NAICS_CODE = col_double(),
-##   SOURCEDATE = col_datetime(format = &quot;&quot;),
-##   VAL_DATE = col_datetime(format = &quot;&quot;)
-## )</code></pre>
-<pre><code>## See spec(...) for full column specifications.</code></pre>
+<div id="description" class="section level2">
+<h2>Description</h2>
+<p>The purpose of this file is to create a tidy version of the 500 Cities dataset merged onto the ACS data to avoid having to re-run in other programs multiple times since the code takes &gt;5 minutes to run.</p>
+<p>The dataset is based on the 2016 data in the 500 cities dataset (The 2015 data doesn’t have information on unhealthy behaviors).</p>
+<p>We do not need to link to this RMD file for the website.</p>
+</div>
 
 
 
