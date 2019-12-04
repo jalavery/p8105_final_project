@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 **Motivation & Related Work**
 
-The goal of this project was to better understand the relationship between health behaviors and self reported mental health, as well as distribution of mental health accross the 500 cities dataset. 
+The goal of this project was to better understand the relationship between health behaviors and self reported mental health, as well as distribution of mental health across the US, utilizing data from the 500 cities dataset. 
 
 We were inspired to complete this analysis from seeing how the 500 cities datset was utilited in a prior project for the P8105 class, [The Heart Project](https://alc2279.github.io/p8105_final_project/).
  
