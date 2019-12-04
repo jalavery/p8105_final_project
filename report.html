@@ -277,6 +277,9 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
+  <a href="dashboard.html">Maps</a>
+</li>
+<li>
   <a href="report.html">Project Report</a>
 </li>
 <li>
@@ -305,8 +308,204 @@ $(document).ready(function () {
 </div>
 
 
-<div id="report" class="section level2">
-<h2>Report</h2>
+<div id="motivation-related-work" class="section level2">
+<h2><strong>Motivation &amp; Related Work</strong></h2>
+<p>The World Health Organization (WHO), defines mental health as “a state of well-being in which the individual realizes his or her own abilities, can cope with the normal stresses of life, can work productively and fruitfully, and is able to make a contribution to his or her community.” This definition demonstrates how mental health is an important aspect of overall wellness. Mental illness, however, is one of the most common medical statuses in the United States. In 2017 alone, 46.6 million Americans live with a mental illness, accounting for approximately 20% of the U.S. population. And, more than 10 million (4.6%) American adults had a serious mental illness which substantially interferes with or limit one or more major life activities. Geographic variation in mental health has drawn attention in the health care community. In a recent report, most of the best cities for mental health are located in the West or Midwest, and none are located in the Northeast. Mental health and many common mental disorders are shaped to a great extent by the social, economic, and physical environments in which people live. Factors that potentially contribute to the variation are not well understood and need further study. With this project we wanted to better understand what behaviors are positively associated with mental health and the distribution of rates of mental health in the United States.</p>
+<p>The goal of this project was to better understand the relationship between health behaviors and self reported mental health, as well as distribution of mental health across the US, utilizing data from the 500 cities dataset.</p>
+<p>We were inspired to complete this analysis from seeing how the 500 cities datset was utilited in a prior project for the P8105 class, <a href="https://alc2279.github.io/p8105_final_project/">The Heart Project</a>.</p>
+<p>Mental illness is one of the most common medical conditions in the United States. In 2017 alone, 46.6 million Americans lived with a mental illness, approximately 20% of the U.S. population <a href="https://www.nimh.nih.gov/health/statistics/mental-illness.shtml#part_154785">source</a>. More than 10 million (4.6%) American adults had a serious mental illness which substantially interferes with, or limits, one or more major life activities. Geographic variation in mental health has drawn attention in the health care community. In a report from the Sleep Help, most of the best U.S. cities for mental health are located in the West or Midwest, and none are located in the Northeast <a href="https://www.sleephelp.org/cities-best-mental-health-sleep/#the-15-cities-reporting-the-best-mental-health">source</a>. Mental health and many common mental disorders are shaped to a great extent by the social, economic, and physical environments in which people live. Factors that potentially contribute to the variation are not well understood and need further study.</p>
+</div>
+<div id="research-questions" class="section level2">
+<h2>Research questions</h2>
+<p><strong>Initial questions</strong></p>
+<p>When we started this project we were interested in looking at cancer, specifically uterine cancer, as an endpoint. Our plan was to explore the health behaviors associated with uterine cancer, and look at geographic variation in the uterine cancer rates. The 500 Cities dataset includes data on cancer, but after further exploration we discovered that the cancer variable available was for all cancers except for melanoma, and the group felt that the data was too general to do a meaningful analysis.</p>
+<p>We switched our outcome to mental health because we felt it was a timely and interesting topic, and because the data supported the scope of the project. We continuted with our plan to look at the association of health behaviors with mental health as the outcome and to look at the geographic variation.</p>
+</div>
+<div id="data-methods" class="section level2">
+<h2>Data &amp; Methods</h2>
+<p>This project utilizes data from the <a href="https://www.cdc.gov/500cities/index.htm">500 cities dataset</a>, publicly available for download <a href="https://catalog.data.gov/dataset/500-cities-local-data-for-better-health-fc759">here</a>. The data are based on the <a href="https://www.cdc.gov/brfss/">Behavioral Risk Factor Surveillance System (BRFSS)</a> survey, which is a national survey of adults’ behavior surrounding their health (risk behavior, use of preventative services, chronic conditions). Data are summarized using small area estimation methods and are not reported on the individual level, but at the census-tract level and include geographic identifiers such as latitude and longitude, city Federal Information Processing Standards (FIPS) and census tract FIPS.</p>
+<p>The 500 cities data source includes data on health outcomes such as asthma, arthritis, cancer, heart disease, and mental health, along with data on unhealthy behaviors such as drinking, smoking, and obesity.</p>
+<p>The Centers for Disease Control and Prevention’s (CDC) 500 Cities 2018 data was used for this analysis, linked with American Community Survey census tract data. All data is for the population 18 years and over. The 500 Cities Project is to provide city- and census tract-level health data in the largest 500 cities in the US, including chronic disease risk factors, health outcomes, and clinical preventive service use. The primary outcome is self-reported mental health where adults are considered to be in good mental health if they report being in good mental for a majority of days in a given month. Cities were ranked based on the percentage of adults reporting good mental health.</p>
+<p>A random effect ?? model was developed to examine the geographic variation across cities, including the covariates of ???</p>
+</div>
+<div id="exploratory-analysis" class="section level2">
+<h2>Exploratory Analysis</h2>
+<p>We started by looking at the distribution of mental health across all census districts in the US and averaged the percent of adults with poor mental health for 14 of the past 30 days across all census tracts within a city. We can see that the data are skewed slightly, but that the average percent of adults with poor mental health was 13.1% (standard deviation 3.41%).</p>
+<p><img src="report_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>We were also interested in which cities have the highest and lowest mental health, unadjusted for other factors. We can see that overall, there isn’t a large difference between cities with the best and worst mental health; all cities had fewer than 25% of adults reporting poor mental health in the past month. Among the top 10 in both directions, cities were fairly close to each other with respect to the percentage of adults with poor mental health.</p>
+<p><img src="report_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="results" class="section level2">
+<h2>Results</h2>
+<p>Looking at the distribution of the data at the census-tract level, the % of adults with poor mental health for 14+ days out of the last 30 is slightly skewed. Due to the large sample size we will proceed with a linear model and ignore the slight skeweness in the data.</p>
+<p>The linear model was adjusted for factors identified a priori; a model-building process was not employed. Factors included the percent of adults without leisure-time physical activity, percent of adults that were current smokers, the percent of adults without health insurance (all from the 500 cities dataset) in addition to the percent male, with less than high school education, and white (from the American Community Survey data). The model is clustered at the city level, accounting for repeated measures at the census tract level within each city.</p>
+<p>We can see that a higher percentage of adults without physical activity is associated with better mental health. Smoking and lack health insurance were associated with poorer mental health. A higher percentage of men, white adults, and adults with less than a high school education were associated with a lower percentage of adults with poorer mental health.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="left">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">5.036</td>
+<td align="right">0.086</td>
+<td align="left">&lt;0.001</td>
+</tr>
+<tr class="even">
+<td align="left">% Without physicial activity</td>
+<td align="right">-0.051</td>
+<td align="right">0.002</td>
+<td align="left">&lt;0.001</td>
+</tr>
+<tr class="odd">
+<td align="left">% Current smokers</td>
+<td align="right">0.503</td>
+<td align="right">0.002</td>
+<td align="left">&lt;0.001</td>
+</tr>
+<tr class="even">
+<td align="left">% Without health insurance</td>
+<td align="right">0.158</td>
+<td align="right">0.002</td>
+<td align="left">&lt;0.001</td>
+</tr>
+<tr class="odd">
+<td align="left">% Male</td>
+<td align="right">-0.042</td>
+<td align="right">0.001</td>
+<td align="left">&lt;0.001</td>
+</tr>
+<tr class="even">
+<td align="left">% With less than high school education</td>
+<td align="right">-0.010</td>
+<td align="right">0.001</td>
+<td align="left">&lt;0.001</td>
+</tr>
+<tr class="odd">
+<td align="left">% White</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="left">0.414</td>
+</tr>
+</tbody>
+</table>
+<p>From the adjusted model, below are the cities with the best and worst mental health.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">category</th>
+<th align="left">city_state</th>
+<th align="right">Predicted % adults with poor mental health</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Worst predicted mental health</td>
+<td align="left">Flint, MI</td>
+<td align="right">18.71</td>
+</tr>
+<tr class="even">
+<td align="left">Worst predicted mental health</td>
+<td align="left">Camden, NJ</td>
+<td align="right">18.56</td>
+</tr>
+<tr class="odd">
+<td align="left">Worst predicted mental health</td>
+<td align="left">New Bedford, MA</td>
+<td align="right">18.55</td>
+</tr>
+<tr class="even">
+<td align="left">Worst predicted mental health</td>
+<td align="left">Reading, PA</td>
+<td align="right">18.30</td>
+</tr>
+<tr class="odd">
+<td align="left">Worst predicted mental health</td>
+<td align="left">Detroit, MI</td>
+<td align="right">18.19</td>
+</tr>
+<tr class="even">
+<td align="left">Worst predicted mental health</td>
+<td align="left">Fall River, MA</td>
+<td align="right">18.11</td>
+</tr>
+<tr class="odd">
+<td align="left">Worst predicted mental health</td>
+<td align="left">Springfield, MA</td>
+<td align="right">17.51</td>
+</tr>
+<tr class="even">
+<td align="left">Worst predicted mental health</td>
+<td align="left">Rochester, NY</td>
+<td align="right">17.35</td>
+</tr>
+<tr class="odd">
+<td align="left">Worst predicted mental health</td>
+<td align="left">Trenton, NJ</td>
+<td align="right">17.18</td>
+</tr>
+<tr class="even">
+<td align="left">Worst predicted mental health</td>
+<td align="left">Dayton, OH</td>
+<td align="right">17.11</td>
+</tr>
+<tr class="odd">
+<td align="left">Best predicted mental health</td>
+<td align="left">Plymouth, MN</td>
+<td align="right">8.01</td>
+</tr>
+<tr class="even">
+<td align="left">Best predicted mental health</td>
+<td align="left">Sunnyvale, CA</td>
+<td align="right">8.03</td>
+</tr>
+<tr class="odd">
+<td align="left">Best predicted mental health</td>
+<td align="left">San Ramon, CA</td>
+<td align="right">8.27</td>
+</tr>
+<tr class="even">
+<td align="left">Best predicted mental health</td>
+<td align="left">Bellevue, WA</td>
+<td align="right">8.31</td>
+</tr>
+<tr class="odd">
+<td align="left">Best predicted mental health</td>
+<td align="left">Overland Park, KS</td>
+<td align="right">8.37</td>
+</tr>
+<tr class="even">
+<td align="left">Best predicted mental health</td>
+<td align="left">Fremont, CA</td>
+<td align="right">8.43</td>
+</tr>
+<tr class="odd">
+<td align="left">Best predicted mental health</td>
+<td align="left">Mountain View, CA</td>
+<td align="right">8.49</td>
+</tr>
+<tr class="even">
+<td align="left">Best predicted mental health</td>
+<td align="left">Sugar Land, TX</td>
+<td align="right">8.51</td>
+</tr>
+<tr class="odd">
+<td align="left">Best predicted mental health</td>
+<td align="left">Newport Beach, CA</td>
+<td align="right">8.51</td>
+</tr>
+<tr class="even">
+<td align="left">Best predicted mental health</td>
+<td align="left">Naperville, IL</td>
+<td align="right">8.57</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 

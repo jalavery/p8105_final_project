@@ -70,19 +70,20 @@ df_tracts = df %>%
       as.numeric(),
     lon = str_extract(geo_location, "\\s-?\\d+\\.?\\d*") %>% 
       as.numeric() %>% 
-      str_trim(c("both"))
+      str_trim(c("both")),
+    `Percent Poor Mental Health` = data_value
   ) %>% 
-  select(city_name, lat, lon, data_value, city_fips, tract_fips) %>% 
+  select(city_name, lat, lon, `Percent Poor Mental Health`, data_value, city_fips, tract_fips) %>% 
   distinct()
 
 p_base = df_tracts %>%
   plot_mapbox(
     lat = ~lat,
     lon = ~lon,
-    color = ~data_value,
+    color = ~`Percent Poor Mental Health`,
     marker = list(),
     type = 'scattermapbox',
-    hovertext = df_cities[,"city_name"]
+    hovertext = df_tracts[,"Percent Poor Mental Health"]
   ) %>%
   layout(
     mapbox = list(
@@ -117,7 +118,7 @@ ny_joined = left_join(ny, mh_values,
                       by = c(GEOID = "tract_fips")) %>% 
   drop_na()
 
-mapview(ny_joined, zcol = "data_value", legend = TRUE)
+mapview(ny_joined, zcol = "data_value", legend = FALSE)
 ```
 
 ### Mental Health in San Francisco
@@ -133,7 +134,7 @@ sf_joined = left_join(sf, mh_values,
                       by = c(GEOID = "tract_fips")) %>% 
   drop_na()
 
-mapview(sf_joined, zcol = "data_value", legend = TRUE)
+mapview(sf_joined, zcol = "data_value", legend = FALSE)
 ```
 
 ### Mental Health in Chicago
@@ -149,7 +150,7 @@ chicago_joined = left_join(chicago, mh_values,
                            by = c(GEOID = "tract_fips")) %>% 
   drop_na()
 
-mapview(chicago_joined, zcol = "data_value", legend = TRUE)
+mapview(chicago_joined, zcol = "data_value", legend = FALSE)
 
 ```
 
