@@ -6,6 +6,9 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(tidycensus)
 ```
 
 ## Description
@@ -66,7 +69,8 @@ acs_data <- states %>%
   select(-starts_with("B0"))
 
 # combine ACS data with 500 cities data
-tidy_data_acs <- left_join(tidy_data, acs_data, by = c("tract_fips" = "GEOID"))
+tidy_data_acs <- left_join(tidy_data, acs_data, by = c("tract_fips" = "GEOID")) %>% 
+  mutate(city_state = paste0(city_name, ", ", state_abbr))
 
 # save data for use in other parts of website
 save(tidy_data_acs, file = "./data/tidy_data_acs.Rdata")

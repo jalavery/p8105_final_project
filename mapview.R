@@ -20,4 +20,4 @@
 tract_geoms = readRDS("data/tract_geoms.RDS")
 
 m = mapview(tract_geoms, zcol = "estimate", legend = TRUE)
-mapshot(m, url = "mapview.html"))
+mapshot(m, url = "mapview.html")
