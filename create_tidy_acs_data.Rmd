@@ -1,0 +1,74 @@
+---
+title: "Create Tidy Dataset: 500 cities + American Community Survey Data"
+date: "12/1/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Description
+
+The purpose of this file is to create a tidy version of the 500 Cities dataset merged onto the ACS data to avoid having to re-run in other programs multiple times since the code takes >5 minutes to run.
+
+The dataset is based on the 2016 data in the 500 cities dataset (The 2015 data doesn't have information on unhealthy behaviors). 
+
+We do not need to link to this RMD file for the website.
+
+```{r, message=FALSE}
+# read in dataset, keep records at the census tract level
+raw_data <- readRDS("./data/df_500_cities.RDS") %>% 
+  janitor::clean_names() %>% 
+  filter(geographic_level == "Census Tract", year == 2016)
+
+# clean up data to prepare for a model
+tidy_data <- raw_data %>% 
+  filter(category == "Unhealthy Behaviors" | short_question_text %in% c("Mental Health", "Health Insurance", "Physical Health")) %>% 
+  pivot_wider(id_cols = c(year, state_abbr, state_desc, city_name, geographic_level, geo_location, tract_fips),
+              names_from = short_question_text,
+              values_from = data_value) %>% 
+  janitor::clean_names()
+
+# apply api key
+key <- census_api_key("ae24453f5cbe5a92b368876f673eafffbec7b673")
+
+# get list of variables available in the 2015 5-year ACS estimates
+# looked through this dataset to identify variables to pull below
+vars_acs <- load_variables(2015, "acs5")
+
+# look at concepts
+look <- tibble(concepts = unique(sort(pull(vars_acs,concept))))
+
+# for each state in the 500 cities dataset, pull the relevant ACS variables
+states <- tibble(states = unique(sort(pull(tidy_data, state_abbr))))
+
+#50 states + DC
+# nrow(states)
+
+# for each state, pull the ACS data
+# this code works
+acs_data <- states %>% 
+  # filter(states %in% c("New York", "Alabama")) %>% #for testing code only
+  mutate(acs_data = map(states, ~get_acs(geography = "tract", state = .x, 
+                                         variable = c("B01001_001", "B01001_002", "B01001_026", #sex
+                                                      "B06009_001", "B06009_002", #education
+                                                      "B02001_001", "B02001_002"), #race
+                                         year = 2015, key = "ae24453f5cbe5a92b368876f673eafffbec7b673"))) %>% 
+  unnest(cols = c(acs_data)) %>% 
+  pivot_wider(id_cols = c(GEOID, NAME),
+              names_from = variable,
+              values_from = estimate) %>% 
+  mutate(pct_male = round(100*B01001_002/B01001_001, 2),
+         pct_female = round(100*B01001_026/B01001_001, 2),
+         pct_ltHS = round(100*B06009_002/B06009_001, 2),
+         pct_white = round(100*B02001_002/B02001_001, 2)) %>% 
+  select(-starts_with("B0"))
+
+# combine ACS data with 500 cities data
+tidy_data_acs <- left_join(tidy_data, acs_data, by = c("tract_fips" = "GEOID"))
+
+# save data for use in other parts of website
+save(tidy_data_acs, file = "./data/tidy_data_acs.Rdata")
+```
+

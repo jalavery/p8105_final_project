@@ -196,7 +196,8 @@ ny = get_acs(geography = "tract",
               variables = "B19013_001", 
               state = "NY", 
               county = "New York", 
-              geometry = TRUE)
+              geometry = TRUE,
+              key = "ae24453f5cbe5a92b368876f673eafffbec7b673")
 
 mapview(ny, zcol = "estimate", legend = TRUE)
 

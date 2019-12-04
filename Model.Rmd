@@ -2,7 +2,7 @@
 title: "Model Building"
 author: "Jessica Lavery"
 date: "11/17/2019"
-output: github_document
+output: html_document
 editor_options: 
   chunk_output_type: console
 ---
@@ -11,115 +11,32 @@ editor_options:
 knitr::opts_chunk$set(echo = FALSE)
 
 library(tidyverse)
-library(tidycensus)
-
-# references
-# https://walkerke.github.io/tidycensus/articles/basic-usage.html
+library(broom.mixed)
 
 # set theme for ggplot
 theme_set(theme_bw() + theme(legend.position = "bottom"))
+
+# load tidied 500 cities + ACS data
+load("./data/tidy_data_acs.Rdata")
 ```
 
-```{r, message=FALSE}
-# read in dataset, keep records at the census tract level
-raw_data <- readRDS("./data/df_500_cities.RDS") %>% 
-  janitor::clean_names() %>% 
-  filter(geographic_level == "Census Tract")
-
-# clean up data to prepare for a model
-tidy_data <- raw_data %>% 
-  filter(category == "Unhealthy Behaviors" | short_question_text %in% c("Mental Health", "Health Insurance", "Physical Health")) %>% 
-  pivot_wider(id_cols = c(year, state_abbr, state_desc, city_name, geographic_level, geo_location, tract_fips),
-              names_from = short_question_text,
-              values_from = data_value) %>% 
-  janitor::clean_names()
-
-# apply api key
-key <- census_api_key("ae24453f5cbe5a92b368876f673eafffbec7b673")
-
-# get list of variables available in the 2015 5-year ACS estimates
-# looked through this dataset to identify variables to pull below
-vars_acs <- load_variables(2015, "acs5")
-
-# look at concepts
-look <- tibble(concepts = unique(sort(pull(vars_acs,concept))))
-
-# for each state in the 500 cities dataset, pull the relevant ACS variables
-states <- tibble(states = unique(sort(pull(tidy_data, state_abbr))))
-
-#50 states + DC
-# nrow(states)
-
-# for each state, pull the ACS data
-# this code works
-acs_data <- states %>% 
-  # filter(states %in% c("New York", "Alabama")) %>% #for testing code only
-  mutate(acs_data = map(states, ~get_acs(geography = "tract", state = .x, 
-                                         variable = c("B01001_001", "B01001_002", "B01001_026", #sex
-                                                      "B06009_001", "B06009_002", #education
-                                                      "B02001_001", "B02001_002"), #race
-                                         year = 2015))) %>% 
-  unnest(cols = c(acs_data)) %>% 
-  pivot_wider(id_cols = c(GEOID, NAME),
-              names_from = variable,
-              values_from = estimate) %>% 
-  mutate(pct_male = round(100*B01001_002/B01001_001, 2),
-         pct_female = round(100*B01001_026/B01001_001, 2),
-         pct_ltHS = round(100*B06009_002/B06009_001, 2),
-         pct_white = round(100*B02001_002/B02001_001, 2)) %>% 
-  select(-starts_with("B0"))
-
-# combine ACS data with 500 cities data
-tidy_data_acs <- left_join(tidy_data, acs_data, by = c("tract_fips" = "GEOID"))
-```
-
-## Basic summary plots to potentially include on the website
-
-```{r}
-summaries_by_city <- tidy_data_acs %>% 
-  group_by(state_desc, city_name) %>% 
-  summarize_if(is.numeric, mean, na.rm = TRUE) %>% 
-  mutate(city_state = paste0(city_name, ", ", state_desc)) %>% 
-  ungroup()
-
-# cities with best and worst mental health
-worst_mh <- summaries_by_city %>% 
-  top_n(10, mental_health) 
-
-best_mh <- summaries_by_city %>% 
-  top_n(-10, mental_health) 
-
-extremes_mh <- bind_rows(worst_mh, best_mh)
-
-extremes_mh %>% 
-  arrange(mental_health) %>% 
-  ggplot(aes(x = reorder(city_state, -desc(mental_health)), y = mental_health)) +
-  geom_bar(stat = "identity") +
-  coord_flip() +
-  labs(title = "Cities with the top 10 best and worst mental health in the US",
-       x = "",
-       y = "% of Adults with mental health not good for ≥14 days")
-```
-
-
-## Build model for mental health as an outcome
+## Build model with mental health as an outcome
 
 ```{r, message=FALSE}
 # look at distribution of data to determine fit of a model
 # data are skewed, but not terribly so, will run linear model and then bootstrap for standard errors
-ggplot(data = tidy_data_acs, aes(x = mental_health)) +
+ggplot(data = tidy_data_acs %>% drop_na(mental_health), aes(x = mental_health)) +
   geom_histogram(bins = 40) +
   labs(x = "% of Adults with mental health not good for ≥14 days",
        y = "Count", title = "Distribution of the Percent of Adults at the Census-Tract Level with Poor Mental Health",
        caption = "Poor mental health defined as the % of adults who report that their mental health is not good for 14+ days in the past month.")
 ```
 
-```{r}
-# run linear model with unhealthy behaviors as only predictors
-mdl_mental_heatlh <- lm(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white, data = tidy_data_acs)
 
-# try hierarchical model
-# mdl_mental_heatlh_random <- lme4::lmer(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white + (1 | city_name), data = tidy_data_acs)
+```{r, include=FALSE, eval=FALSE}
+# first pass at model: fixed effects model
+# run linear model with unhealthy behaviors as only predictors
+mdl_mental_heatlh <- lm(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white, data = tidy_data_acs )
 
 # review model output
 # summary(mdl_mental_heatlh)
@@ -137,19 +54,13 @@ broom::tidy(mdl_mental_heatlh) %>%
          p.value = format.pval(p.value, digits = 3, eps = 0.001)) %>% 
   knitr::kable(digits = c(2, 2, 2, 2, 2))
 
-```
-
-## Assess model fit
-
-The residuals are evenly dispersed around the predicted values, indicating that there are no obvious problems with the model.
-
-```{r}
 # add diagnostics to data frame
 diagnostic_mh <- tidy_data_acs %>% 
   modelr::add_residuals(mdl_mental_heatlh) %>% 
   modelr::add_predictions(mdl_mental_heatlh)
 
 # plot diagnostics
+# The residuals are evenly dispersed around the predicted values, indicating that there are no obvious problems with the model.
 ggplot(data = diagnostic_mh, aes(x = pred, y = resid)) + 
   geom_point() + 
   geom_hline(yintercept = 0, color = "gray") + 
@@ -157,30 +68,54 @@ ggplot(data = diagnostic_mh, aes(x = pred, y = resid)) +
       y = "Residual")
 ```
 
-## Hypothesis testing (do we want to bootstrap?)
+Looking at the distribution of the data at the census-tract level, the % of adults with poor mental health for 14+ days out of the last 30 is slightly skewed. Due to the large sample size we will proceed with a linear model and ignore the slight skeweness in the data. 
 
-Because the outcome is slightly skewed, instead of relying on traditional frameworks for assessing the significance of each variable, we will bootstrap to estimate the standard errors. 
+The linear model was adjusted for factors identified a priori; a model-building process was not employed. Factors included the percent of adults without leisure-time physical activity, percent of adults that were current smokers, the percent of adults without health insurance (all from the 500 cities dataset) in addition to the percent male, with less than high school education, and white (from the American Community Survey data). The model is clustered at the city level, accounting for repeated measures at the census tract level within each city. 
+
+We can see that a higher percentage of adults without physical activity is associated with better mental health. Smoking and lack health insurance were associated with poorer mental health. A higher percentage of men, white adults, and adults with less than a high school education were associated with a lower percentage of adults with poorer mental health. 
 
 ```{r}
-# 1. select bootstrap samples
-bootstrap_samples <- tidy_data_acs %>% 
-  modelr::bootstrap(n = 10)
+# hierarchical model
+mdl_mh_random <- nlme::lme(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white, random = ~ 1 | city_state, data = tidy_data_acs %>% drop_na())
 
-# 2. on each bootstrapped sample, run a linear model and extract relevant information 
-bootstrap_models <- bootstrap_samples %>% 
-  mutate(models = map(strap, ~lm(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white, data = .x)),
-         results = map(models, broom::tidy),
-         r2 = map(models, broom::glance)) %>% 
-  select(-strap, -models) %>%
-  unnest(c(results, r2), names_repair = "universal") %>% 
-  select(.id, term, estimate, r.squared) %>% 
-  group_by(term) %>% 
-  summarize(boot_se = sd(estimate),
-            rsq = mean(r.squared))
+# get model output from random effects model
+broom.mixed::tidy(mdl_mh_random) %>% 
+  filter(effect == "fixed") %>% 
+  mutate(term = case_when(term == "physical_inactivity" ~ "% Without physicial activity",
+                          term == "current_smoking" ~ "% Current smokers",
+                          term == "health_insurance" ~ "% Without health insurance",
+                          term == "pct_male" ~ "% Male",
+                          term == "pct_ltHS" ~ "% With less than high school education",
+                          term == "pct_white" ~ "% White",
+                          TRUE ~ term),
+         p.value = format.pval(p.value, digits = 3, eps = 0.001)) %>% 
+  select(-effect, -group, -df, -statistic) %>% 
+  knitr::kable(digits = c(2, 3, 3, 2, 2))
+```
 
+From the adjusted model, below are the cities with the best and worst mental health.
 
-  # pivot_wider(id_cols = c(.id, r.squared),
-  #             names_from = term,
-  #             values_from = estimate) 
+```{r}
+pred <- as_tibble(predict(mdl_mh_random, tidy_data_acs %>% drop_na(), level = 0:1)) %>% 
+  group_by(city_state) %>% 
+  summarize_if(is.numeric, mean, na.rm = TRUE) %>% 
+  ungroup()
+
+# cities with best and worst mental health
+worst_mh <- pred %>% 
+  top_n(10, predict.city_state) %>% 
+  mutate(category = "Worst predicted mental health") %>% 
+  arrange(desc(predict.city_state))
+
+best_mh <- pred %>% 
+  top_n(-10, predict.city_state) %>% 
+  mutate(category = "Best predicted mental health") %>% 
+  arrange(predict.city_state)
+
+# comebine into table
+bind_rows(worst_mh, best_mh) %>% 
+  select(category, city_state, predict.city_state) %>% 
+  rename(`Predicted % adults with poor mental health` = predict.city_state) %>% 
+  knitr::kable(digits = c(1, 1, 2))
 ```
 
