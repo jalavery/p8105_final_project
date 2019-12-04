@@ -12,7 +12,7 @@
 
 
 
-<title>The Happy Cities: Geographic variation in unhealthy behaviors and mental health across 500 cities in the U.S.A</title>
+<title>Report</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,9 +20,6 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -253,63 +250,6 @@ $(document).ready(function () {
 
 
 
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-
-</style>
-
-
 
 </head>
 
@@ -317,16 +257,6 @@ div.tocify {
 
 
 <div class="container-fluid main-container">
-
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -346,12 +276,8 @@ div.tocify {
         
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown-header">Maps</li>
-<li>
+        <li>
   <a href="report.html">Project Report</a>
-</li>
-<li>
-  <a href="descriptives.html">Descriptive</a>
 </li>
 <li>
   <a href="mailto:&lt;jl4443@cumc.columbia.edu&gt;">
@@ -374,49 +300,17 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">The Happy Cities: Geographic variation in unhealthy behaviors and mental health across 500 cities in the U.S.A</h1>
+<h1 class="title toc-ignore">Report</h1>
 
 </div>
 
 
-<center>
-<figure>
-<p><img src = "images/brain_pic.png" style = "width:75%"></p>
-<em>Image from</em> <a href="https://www.sarcoidosisuk.org/support/sarcoidosis-and-mental-health/"><em>SARCOIDOSIS UK</em></a>
-</figure>
-</center>
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
-<p>The World Health Organization (WHO), defines mental health as “a state of well-being in which the individual realizes his or her own abilities, can cope with the normal stresses of life, can work productively and fruitfully, and is able to make a contribution to his or her community.” This definition demonstrates how mental health is an important aspect of overall wellness. Mental illness, however, is one of the most common medical statuses in the United States. In 2017 alone, 46.6 million Americans live with a mental illness, accounting for approximately 20% of the U.S. population. And, more than 10 million (4.6%) American adults had a serious mental illness which substantially interferes with or limit one or more major life activities. Geographic variation in mental health has drawn attention in the health care community. In a recent report, most of the best cities for mental health are located in the West or Midwest, and none are located in the Northeast. Mental health and many common mental disorders are shaped to a great extent by the social, economic, and physical environments in which people live. Factors that potentially contribute to the variation are not well understood and need further study. With this project we wanted to better understand what behaviors are positively associated with mental health and the distribution of rates of mental health in the United States.</p>
-</div>
-<div id="presentation" class="section level2">
-<h2>Presentation</h2>
-</div>
-<div id="data" class="section level2">
-<h2>Data</h2>
-<p>This project utilizes data from the <a href="https://www.cdc.gov/500cities/index.htm">500 cities dataset</a>, publicly available for download <a href="https://catalog.data.gov/dataset/500-cities-local-data-for-better-health-fc759">here</a>. The data are based on the <a href="https://www.cdc.gov/brfss/">Behavioral Risk Factor Surveillance System (BRFSS)</a> survey, which is a national survey of adults’ behavior surrounding their health (risk behavior, use of preventative services, chronic conditions).</p>
-<p>Data are summarized using small area estimation methods and are not reported on the individual level, but at the census-tract level and include geographic identifiers such as latitude and longitude, city Federal Information Processing Standards (FIPS) and census tract FIPS.</p>
-<p>The 500 cities data source includes health data on outcomes such as asthma, arthritis, cancer, heart disease, and mental health. To assess mental health, respondents aged ≥18 years were asked if 14 or more days out of the past 30 days their mental health was not good.</p>
-</div>
-<div id="thre-is-also-data-on-unhealthy-behaviors-such-as-drinking-smoking-and-obesity." class="section level1">
-<h1>Thre is also data on unhealthy behaviors such as drinking, smoking, and obesity.</h1>
-<div id="introduction-1" class="section level2">
-<h2>Introduction</h2>
-</div>
-<div id="presentation-1" class="section level2">
-<h2>Presentation</h2>
-</div>
-<div id="data-1" class="section level2">
-<h2>Data</h2>
-<p>This project utilizes data from the <a href="https://www.cdc.gov/500cities/index.htm">500 cities dataset</a>, publicly available for download <a href="https://catalog.data.gov/dataset/500-cities-local-data-for-better-health-fc759">here</a>. The data are based on the <a href="https://www.cdc.gov/brfss/">Behavioral Risk Factor Surveillance System (BRFSS)</a> survey, which is a national survey of adults’ behavior surrounding their health (risk behavior, use of preventative services, chronic conditions). Data are summarized using small area estimation methods and are not reported on the individual level, but at the census-tract level and include geographic identifiers such as latitude and longitude, city Federal Information Processing Standards (FIPS) and census tract FIPS.</p>
-<p>The 500 cities data source includes data on health outcomes such as asthma, arthritis, cancer, heart disease, and mental health, along with data on unhealthy behaviors such as drinking, smoking, and obesity.</p>
-</div>
+<div id="report" class="section level2">
+<h2>Report</h2>
 </div>
 
 
 
-</div>
-</div>
 
 </div>
 
@@ -449,32 +343,6 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
-<script>
-$(document).ready(function ()  {
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

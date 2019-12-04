@@ -3,8 +3,12 @@ output_dir: "."
 navbar:
   title: "Home"
   right:
-    - text: "Project Report"
+    - text: "Maps"
       href: 
+    - text: "Project Report"
+      href: report.html
+    - text: "Descriptive"
+      href: descriptives.html
     - icon: fa-envelope fa-lg
       href: mailto:<jl4443@cumc.columbia.edu>
     - icon: fa-github fa-lg
