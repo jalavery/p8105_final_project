@@ -1,0 +1,156 @@
+---
+title: "Mental Health in the United States"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    theme: "readable"
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(plotly)
+library(tidycensus)
+library(mapview)
+options(tigris_use_cache = TRUE)
+
+token = paste(readLines("map_files/mapbox_token"), collapse = "")
+Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiZm9yZGhvbGxhbmQiLCJhIjoiY2szNmFjenZ2MWZobTNkbW13cHZmbmx6MyJ9.gBJzMKvozUNzXAZ-uvW4tQ')
+
+df = readRDS("data/df_500_cities.RDS") %>% janitor::clean_names()
+```
+
+```{r, include=FALSE}
+df_cities = df %>%
+  filter(geographic_level == "City",
+         measure == "Mental health not good for >=14 days among adults aged >=18 Years",
+         data_value_type == "Crude prevalence") %>%
+  mutate(
+    lat = str_extract(geo_location, "-?\\d+\\.?\\d*") %>% 
+      as.numeric(),# %>% 
+    #round(1),
+    lon = str_extract(geo_location, "\\s-?\\d+\\.?\\d*") %>% 
+      as.numeric() %>% #round(1) %>% 
+      str_trim(c("both"))
+  ) %>% 
+  select(city_name, lat, lon, data_value) %>% 
+  distinct()
+
+# df_tracts = df %>%
+#   filter(geographic_level == "Census Tract",
+#          measure == "Mental health not good for >=14 days among adults aged >=18 Years",
+#          data_value_type == "Crude prevalence") %>%
+#   mutate(
+#     lat = str_extract(geo_location, "-?\\d+\\.?\\d*") %>% 
+#       as.numeric(),# %>% 
+#     #round(1),
+#     lon = str_extract(geo_location, "\\s-?\\d+\\.?\\d*") %>% 
+#       as.numeric() %>% #round(1) %>% 
+#       str_trim(c("both"))
+#   ) %>% 
+#   select(city_name, lat, lon, data_value, city_fips, tract_fips) %>% 
+#   distinct()
+```
+
+
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Percent Reporting Poor Mental Health Nationwide 
+
+```{r}
+df_tracts = df %>%
+  filter(geographic_level == "Census Tract",
+         measure == "Mental health not good for >=14 days among adults aged >=18 Years",
+         data_value_type == "Crude prevalence") %>%
+  mutate(
+    lat = str_extract(geo_location, "-?\\d+\\.?\\d*") %>% 
+      as.numeric(),
+    lon = str_extract(geo_location, "\\s-?\\d+\\.?\\d*") %>% 
+      as.numeric() %>% 
+      str_trim(c("both"))
+  ) %>% 
+  select(city_name, lat, lon, data_value, city_fips, tract_fips) %>% 
+  distinct()
+
+p_base = df_tracts %>%
+  plot_mapbox(
+    lat = ~lat,
+    lon = ~lon,
+    color = ~data_value,
+    marker = list(),
+    type = 'scattermapbox',
+    hovertext = df_cities[,"city_name"]
+  ) %>%
+  layout(
+    mapbox = list(
+      style = 'dark',
+      accesstoken = token,
+      zoom = 2.5,  
+      minZoom = 10, 
+      maxZoom = 12.5,
+      center = list(lon = -96.416, lat = 37.58))
+  )
+
+p_base
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Mental Health in New York City
+
+```{r}
+ny = get_acs(geography = "tract", 
+             variables = "B19013_001", 
+             state = "NY", 
+             county = "New York", 
+             geometry = TRUE)
+
+mh_values = df_tracts %>% 
+  select(tract_fips, data_value) %>% 
+  drop_na()
+
+ny_joined = left_join(ny, mh_values,
+                      by = c(GEOID = "tract_fips")) %>% 
+  drop_na()
+
+mapview(ny_joined, zcol = "data_value", legend = TRUE)
+```
+
+### Mental Health in San Francisco
+
+```{r}
+sf = get_acs(geography = "tract", 
+             variables = "B19013_001", 
+             state = "CA", 
+             county = "San Francisco", 
+             geometry = TRUE)
+
+sf_joined = left_join(sf, mh_values,
+                      by = c(GEOID = "tract_fips")) %>% 
+  drop_na()
+
+mapview(sf_joined, zcol = "data_value", legend = TRUE)
+```
+
+### Mental Health in Chicago
+
+```{r}
+chicago = get_acs(geography = "tract", 
+                  variables = "B19013_001", 
+                  state = "IL", 
+                  county = "Cook County", 
+                  geometry = TRUE)
+
+chicago_joined = left_join(chicago, mh_values,
+                           by = c(GEOID = "tract_fips")) %>% 
+  drop_na()
+
+mapview(chicago_joined, zcol = "data_value", legend = TRUE)
+
+```
+
+
