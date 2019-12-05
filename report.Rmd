@@ -227,7 +227,7 @@ We formally compared the random effects model to the fixed effects model, and fo
 # compare to fixed effects model
 mdl_mh_fixed <- lm(mental_health ~ physical_inactivity + pct_male + pct_ltHS + pct_white, data = tidy_data_acs %>% drop_na())
 
-anova(mdl_mh_random,mdl_mh_fixed)
+comparison <- anova(mdl_mh_random,mdl_mh_fixed)
 ```
 
 From the adjusted hierarchical model, we can look at the distribution of the predicted values for mental health (normal by design of the model) and note that the percent of adults with poor mental health for 14+ days of the past month ranges from xx to xx. 
