@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(patchwork)
 library(broom.mixed)
+library(corrplot)
 
 # set theme for ggplot
 theme_set(theme_bw() + theme(legend.position = "bottom"))
@@ -47,14 +48,14 @@ The Centers for Disease Control and Prevention’s (CDC) 500 Cities 2018 data wa
 
 We also merged data from the [American Community Survey (ACS)](https://www.census.gov/programs-surveys/acs/data.html) at the census level to the 500 cities dataset. From the ACS data, we obtained demographic information, such as the percent of adults in the census district that were male, white, and had less than a high school education. 
 
-A random effects model was developed to examine the geographic variation across cities. The linear model was adjusted for factors identified a priori; a model-building process was not employed. Factors included the percent of adults without leisure-time physical activity, percent of adults that were current smokers, the percent of adults without health insurance (all from the 500 cities dataset) in addition to the percent male, with less than high school education, and white (from the American Community Survey data). The model is clustered at the city level, accounting for repeated measures at the census tract level within each city. 
+A random effects model was developed to examine the geographic variation across cities. We first explored the data and examined the association between availabile health behavior factors and mental health. We then examined the pairwise correlations between the health behavior factors and found (perhaps not surprisingly) a high correlation among most factors. Given this, we were unable to concurrently examine the association of many health behaviors at once. We were primarily interested in the assocation between physical inactivity and mental health, so we included physical inactivity. The linear model was further adjusted for factors identified a priori from the American Community Survey data and included the percent male, with less than high school education, and white. The model is clustered at the city level, accounting for repeated measures at the census tract level within each city. 
 
 
 ## **Exploratory Analysis**
 
 We started by looking at the distribution of mental health across all census districts in the US and averaged the percent of adults with poor mental health for 14 of the past 30 days across all census tracts within a city. We can see that the data are skewed slightly, but that the average percent of adults with poor mental health was `r round(mean(pull(tidy_data_acs %>% drop_na(mental_health), mental_health)), 1)`% (standard deviation `r round(sd(pull(tidy_data_acs %>% drop_na(mental_health), mental_health)), 2)`%).
 
-```{r, message=FALSE}
+```{r, message=FALSE, fig.height=3}
 # look at distribution of data to determine fit of a model
 # data are skewed, but not terribly so, will run linear model and then bootstrap for standard errors
 ggplot(data = tidy_data_acs %>% drop_na(mental_health), aes(x = mental_health)) +
@@ -98,12 +99,89 @@ best_mh <- summaries_by_city %>%
 best_mh / worst_mh
 ```
 
-We looked at the association of health behaviors with mental health and saw that there is a high correlation between many unhealthy behaviors and poorer mental health. 
+We looked at the association of health behaviors with mental health and saw that there is a high correlation between many unhealthy behaviors and poorer mental health. Specifically,  higher percentages of adults with no leisure time physical activity, insufficient sleep, who were obese, or who currently smoke were strongly, linearly associated with an increasing percentage of adults with poor mental health. There was less of an association between binge drinking and mental health than we anticipated. The effect of health insurance was not entirely linear; an increasing percentage of adults without health insurance was associated with poor mental health for up to approximately 15% of adults without health insurance, but after that point there was less of an association between the two. 
+
+**Associations between mental health and other health behviors at the census-tract level**
+
+```{r, message=FALSE}
+# physical health
+phys_health <- ggplot(data = summaries_by_city, aes(x = physical_inactivity, y = mental_health)) +
+  geom_point() +
+  geom_smooth() +
+  labs(y = "% Poor Mental Health",
+       x = "% No leisure time physical activity",
+       title = "Physical health")
+
+# binge drinking
+binge_drinking <- ggplot(data = summaries_by_city, aes(x = binge_drinking, y = mental_health)) +
+  geom_point() +
+  geom_smooth() +
+  labs(y = "% Poor Mental Health",
+       x = "% Binge drinking",
+       title = "Binge drinking")
+
+# health insurance
+health_ins <- ggplot(data = summaries_by_city, aes(x = health_insurance, y = mental_health)) +
+  geom_point() +
+  geom_smooth() +
+  labs(y = "% Poor Mental Health",
+       x = "% No health insurance",
+       title = "Health insurance")
+
+# current smoking
+current_smk <- ggplot(data = summaries_by_city, aes(x = current_smoking, y = mental_health)) +
+  geom_point() +
+  geom_smooth() +
+  labs(y = "% Poor Mental Health",
+       x = "% Current Smokers",
+       title = "Smoking status")
+
+# obesity
+obesity <- ggplot(data = summaries_by_city, aes(x = obesity, y = mental_health)) +
+  geom_point() +
+  geom_smooth() +
+  labs(y = "% Poor Mental Health",
+       x = "% Obese",
+       title = "Obesity")
+
+# sleep_7_hours
+sleep <- ggplot(data = summaries_by_city, aes(x = obesity, y = sleep_7_hours)) +
+  geom_point() +
+  geom_smooth() +
+  labs(y = "% Poor Mental Health",
+       x = "% Insufficient Sleep",
+       title = "Insufficient Sleep")
+
+(phys_health + binge_drinking) / (obesity + sleep) / (health_ins + current_smk)
+``` 
+
+Definitions: 
+
+* Poor mental health defined as the percent of adults who report having poor mental health for 14 of the last 30 days.
+
+* Physical health defined as the percent of adults who report not participating in any physical activities or exercises such as running, calisthenics, golf, gardening, or walking for exercise. 
+
+* Binge drinking defined as the percent of adults who report having five or more drinks (men) or four or more drinks (women) on an occasion in the past 30 days.
+
+* Obesity defined as the percent of adults whose BMI is 30 kg/m2 or greater. 
+
+* Insufficient sleep defined as the percent of adults who report usually getting insufficient (<7 hours) sleep. 
+
+* Lack of health insurance was defined as the percentage of adults (aged 18–64 years; i.e. those not eligible for Medicare) who report having current health insurance or having no current health insurance
+
+* Current smoking defined as the percent of adults who report smoking ≥100 cigarettes in their lifetime and currently smoke every day.
+
+Ideally, we would adjust for all of these unhealthy behaviors in a single model. However, we suspected that many of them were correlated and would introduce collinearity to the model. Before proceeding to the model, we looked at the correlations between the pairwise combinations of the above factors. We can see that the behaviors are very strongly positively correlated with each other, with the exception of binge drinking which is negatively correlated with the other factors.
 
 ```{r}
-
+cor_mtx <- cor(tidy_data_acs %>% 
+                 select_if(is.numeric) %>% 
+                 select(-year, -mental_health, -physical_health, -starts_with("pct")), 
+               use = "pairwise.complete.obs", 
+               method = "spearman")
+    
+corrplot(cor_mtx,  type = "upper",order = "hclust")
 ```
-
 
 ## **Results**
 
@@ -111,48 +189,13 @@ We looked at the association of health behaviors with mental health and saw that
 
 ### Hierarchical linear model for mental health
 
-```{r, include=FALSE, eval=FALSE}
-# first pass at model: fixed effects model
-# run linear model with unhealthy behaviors as only predictors
-mdl_mental_heatlh <- lm(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white, data = tidy_data_acs )
-
-# review model output
-# summary(mdl_mental_heatlh)
-# mdl_mental_heatlh %>% broom::glance()
-# coef(mdl_mental_heatlh)
-
-broom::tidy(mdl_mental_heatlh) %>% 
-  mutate(term = case_when(term == "physical_inactivity" ~ "% Without physicial activity",
-                          term == "current_smoking" ~ "% Current smokers",
-                          term == "health_insurance" ~ "% Without health insurance",
-                          term == "pct_male" ~ "%  Male",
-                          term == "pct_ltHS" ~ "% With less than high school education",
-                          term == "pct_white" ~ "% White",
-                          TRUE ~ term),
-         p.value = format.pval(p.value, digits = 3, eps = 0.001)) %>% 
-  knitr::kable(digits = c(2, 2, 2, 2, 2))
-
-# add diagnostics to data frame
-diagnostic_mh <- tidy_data_acs %>% 
-  modelr::add_residuals(mdl_mental_heatlh) %>% 
-  modelr::add_predictions(mdl_mental_heatlh)
-
-# plot diagnostics
-# The residuals are evenly dispersed around the predicted values, indicating that there are no obvious problems with the model.
-ggplot(data = diagnostic_mh, aes(x = pred, y = resid)) + 
-  geom_point() + 
-  geom_hline(yintercept = 0, color = "gray") + 
-  labs(x = "Predicted value",
-      y = "Residual")
-```
-
 Looking at the distribution of the data at the census-tract level (above), the % of adults with poor mental health for 14+ days out of the last 30 is slightly skewed. Due to the large sample size we will proceed with a linear model and ignore the slight skeweness in the data. 
 
-We can see that a higher percentage of adults without physical activity is associated with better mental health. Smoking and lack health insurance were associated with poorer mental health. A higher percentage of men, white adults, and adults with less than a high school education were associated with a lower percentage of adults with poorer mental health. 
+From the model, we can see that a higher percentage of adults without physical activity is associated with a higher percentage of adults with poor mental health, after adjusting for sex, race and education. A higher percentage of men and adults with less than a high school education were associated with a higher percentage of adults with poorer mental health, where as a higher percentage of white adults in the census district was associated with slightly better mental health; this effect was statistically significant, though likely not practically significant. 
 
 ```{r}
 # hierarchical model
-mdl_mh_random <- nlme::lme(mental_health ~ physical_inactivity + current_smoking + health_insurance + pct_male + pct_ltHS + pct_white, random = ~ 1 | city_state, data = tidy_data_acs %>% drop_na())
+mdl_mh_random <- nlme::lme(mental_health ~ physical_inactivity + pct_male + pct_ltHS + pct_white, random = ~ 1 | city_state, data = tidy_data_acs %>% drop_na())
 
 # get model output from random effects model
 broom.mixed::tidy(mdl_mh_random) %>% 
@@ -172,11 +215,39 @@ broom.mixed::tidy(mdl_mh_random) %>%
 From the adjusted model, below are the cities with the best and worst mental health.
 
 ```{r}
+# option if we want to use a table instead of a figure
 pred <- as_tibble(predict(mdl_mh_random, tidy_data_acs %>% drop_na(), level = 0:1)) %>% 
   group_by(city_state) %>% 
   summarize_if(is.numeric, mean, na.rm = TRUE) %>% 
-  ungroup()
+  ungroup() 
 
+# cities with best and worst mental health
+worst_mh <- pred %>% 
+  top_n(10, predict.city_state) %>% 
+  ggplot(aes(x = reorder(city_state, -desc(predict.city_state)), y = predict.city_state)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Cities with the bottom 10 mental health in the US",
+       x = "",
+       y = "% of Adults with mental health not good for ≥14 days") +
+  scale_y_continuous(limits = c(0, 100)) +
+  coord_flip()
+
+best_mh <- pred %>% 
+  top_n(-10, predict.city_state) %>% 
+  ggplot(aes(x = reorder(city_state, -desc(predict.city_state)), y = predict.city_state)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Cities with the top 10 mental health in the US",
+       x = "",
+       y = "% of Adults with mental health not good for ≥14 days") +
+  scale_y_continuous(limits = c(0, 100)) +
+  coord_flip()
+
+# panel figures
+best_mh / worst_mh
+```
+
+
+```{r, include = FALSE, eval = FALSE}
 # cities with best and worst mental health
 worst_mh <- pred %>% 
   top_n(10, predict.city_state) %>% 
