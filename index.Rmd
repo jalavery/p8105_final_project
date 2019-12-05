@@ -28,7 +28,7 @@ library(vembedr)
 ```
 
 ```{r echo=FALSE, message = FALSE, warning=FALSE}
-embed_url("https://www.youtube.com/")
+embed_url("https://youtu.be/Jc7s8a2_xLU")
 ```
 
 ## Data
