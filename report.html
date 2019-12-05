@@ -351,13 +351,8 @@ $(document).ready(function () {
 <p>Ideally, we would adjust for all of these unhealthy behaviors in a single model. However, we suspected that many of them were correlated and would introduce collinearity to the model. Before proceeding to the model, we looked at the correlations between the pairwise combinations of the above factors. We can see that the behaviors are very strongly positively correlated with each other, with the exception of binge drinking which is negatively correlated with the other factors.</p>
 <p><img src="report_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 </div>
-<div id="results" class="section level2">
-<h2><strong>Results</strong></h2>
-<div id="maps" class="section level3">
-<h3>Maps</h3>
-</div>
-<div id="hierarchical-linear-model-for-mental-health" class="section level3">
-<h3>Hierarchical linear model for mental health</h3>
+<div id="hierarchical-model-results" class="section level2">
+<h2><strong>Hierarchical Model Results</strong></h2>
 <p>Looking at the distribution of the data at the census-tract level (above), the % of adults with poor mental health for 14+ days out of the last 30 is slightly skewed. Due to the large sample size we will proceed with a linear model and ignore the slight skeweness in the data.</p>
 <p>From the model, we can see that a higher percentage of adults without physical activity is associated with a higher percentage of adults with poor mental health, after adjusting for sex, race and education. A higher percentage of men and adults with less than a high school education were associated with a higher percentage of adults with poorer mental health, where as a higher percentage of white adults in the census district was associated with slightly better mental health; this effect was statistically significant, though likely not practically significant.</p>
 <table>
@@ -402,9 +397,17 @@ $(document).ready(function () {
 </tr>
 </tbody>
 </table>
-<p>From the adjusted model, below are the cities with the best and worst mental health.</p>
-<p><img src="report_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
-</div>
+<p>We formally compared the random effects model to the fixed effects model, and found that the random effect of census tract was statistically signficiant, indicating that there is significant variation in patterns of mental health across cities in the United States.</p>
+<pre><code>##               Model df       AIC       BIC    logLik   Test  L.Ratio
+## mdl_mh_random     1  7  97080.97  97138.44 -48533.48                
+## mdl_mh_fixed      2  6 113207.71 113256.97 -56597.85 1 vs 2 16128.74
+##               p-value
+## mdl_mh_random        
+## mdl_mh_fixed   &lt;.0001</code></pre>
+<p>From the adjusted hierarchical model, we can look at the distribution of the predicted values for mental health (normal by design of the model) and note that the percent of adults with poor mental health for 14+ days of the past month ranges from xx to xx.</p>
+<p><img src="report_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>Below are the cities with the best and worst mental health.</p>
+<p><img src="report_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 </div>
 <div id="discussion" class="section level2">
 <h2><strong>Discussion</strong></h2>

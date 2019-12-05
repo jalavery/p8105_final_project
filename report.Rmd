@@ -183,11 +183,7 @@ cor_mtx <- cor(tidy_data_acs %>%
 corrplot(cor_mtx,  type = "upper",order = "hclust")
 ```
 
-## **Results**
-
-### Maps
-
-### Hierarchical linear model for mental health
+## **Hierarchical Model Results**
 
 Looking at the distribution of the data at the census-tract level (above), the % of adults with poor mental health for 14+ days out of the last 30 is slightly skewed. Due to the large sample size we will proceed with a linear model and ignore the slight skeweness in the data. 
 
@@ -212,15 +208,35 @@ broom.mixed::tidy(mdl_mh_random) %>%
   knitr::kable(digits = c(2, 3, 3, 2, 2))
 ```
 
-From the adjusted model, below are the cities with the best and worst mental health.
+We formally compared the random effects model to the fixed effects model, and found that the random effect of census tract was statistically signficiant, indicating that there is significant variation in patterns of mental health across cities in the United States. 
 
 ```{r}
-# option if we want to use a table instead of a figure
+# compare to fixed effects model
+mdl_mh_fixed <- lm(mental_health ~ physical_inactivity + pct_male + pct_ltHS + pct_white, data = tidy_data_acs %>% drop_na())
+
+anova(mdl_mh_random,mdl_mh_fixed)
+```
+
+From the adjusted hierarchical model, we can look at the distribution of the predicted values for mental health (normal by design of the model) and note that the percent of adults with poor mental health for 14+ days of the past month ranges from xx to xx. 
+
+```{r}
+# get predicted values from the hierarchical model
 pred <- as_tibble(predict(mdl_mh_random, tidy_data_acs %>% drop_na(), level = 0:1)) %>% 
   group_by(city_state) %>% 
   summarize_if(is.numeric, mean, na.rm = TRUE) %>% 
   ungroup() 
 
+# histogram of predicted values
+ggplot(data = pred, aes(x = predict.city_state)) + 
+  geom_histogram(bins = 40) +
+  labs(x = "Predicted % of Adults with mental health not good for ≥14 days",
+       y = "Count", title = "Distribution of the Predicted Percent of Adults at the Census-Tract Level with Poor Mental Health",
+       caption = "Poor mental health defined as the % of adults who report that their mental health is not good for 14+ days in the past month.")
+```
+
+Below are the cities with the best and worst mental health.
+
+```{r}
 # cities with best and worst mental health
 worst_mh <- pred %>% 
   top_n(10, predict.city_state) %>% 
@@ -244,26 +260,6 @@ best_mh <- pred %>%
 
 # panel figures
 best_mh / worst_mh
-```
-
-
-```{r, include = FALSE, eval = FALSE}
-# cities with best and worst mental health
-worst_mh <- pred %>% 
-  top_n(10, predict.city_state) %>% 
-  mutate(category = "Worst predicted mental health") %>% 
-  arrange(desc(predict.city_state))
-
-best_mh <- pred %>% 
-  top_n(-10, predict.city_state) %>% 
-  mutate(category = "Best predicted mental health") %>% 
-  arrange(predict.city_state)
-
-# comebine into table
-bind_rows(worst_mh, best_mh) %>% 
-  select(category, city_state, predict.city_state) %>% 
-  rename(`Predicted % adults with poor mental health` = predict.city_state) %>% 
-  knitr::kable(digits = c(1, 1, 2))
 ```
 
 ## **Discussion**
