@@ -99,7 +99,17 @@ best_mh <- summaries_by_city %>%
 best_mh / worst_mh
 ```
 
-We looked at the association of health behaviors with mental health and saw that there is a high correlation between many unhealthy behaviors and poorer mental health. Specifically,  higher percentages of adults with no leisure time physical activity, insufficient sleep, who were obese, or who currently smoke were strongly, linearly associated with an increasing percentage of adults with poor mental health. There was less of an association between binge drinking and mental health than we anticipated. The effect of health insurance was not entirely linear; an increasing percentage of adults without health insurance was associated with poor mental health for up to approximately 15% of adults without health insurance, but after that point there was less of an association between the two. 
+#### Maps
+
+We created several maps to visualize the distribution of mental health outcomes across the United States. The nationwide scatter plot map is rendered using `plotly's` integration with mapbox and shows the reported percentage of poor mental health by census tract. This map was originally intended as a census-level choropleth, but because of loading-performance issues, we decided to display it as a scatter plot and supplement with smaller-scale choropleths.
+
+The choropleths for New York, San Francisco, and Chicago use geographical geometries from the `tidycensus` package that were joined to the 500 Cities data by census tract FIPS code. These maps display the census level tracts colored by the average percent of poor mental health for each district.
+
+The scatter plot shows a relatively even distribution of mental scores across the country. The most apparent trends are slightly higher percentages of poor mental health in the northeast and lower values along the west coast. This observation is reinforced by our exploratory analysis, which found that several of the cities with the poorest mental health outcomes are distributed on the east coast, while several of the happiest cities in the country are in California.
+
+The choropleths provide a more detailed picture of mental health in the cities presented. Of the three maps, Chicago seems to have the most heterogeneity in mental health, with pockets of poor outcomes in the central and southern districts. San Francisco appears to be the happiest of the three, and New York has noticeable differences between northern and southern census tracts. 
+
+The happiest district in Manhattan is a few blocks in the Upper East Side along Central Park, where only 6.5% of respondents report poor mental health.
 
 **Associations between mental health and other health behviors at the census-tract level**
 
