@@ -1,14 +1,15 @@
 ---
-title: "Happy Cities: <br> Factors Associated with Geographic Variation in Mental Health Status across 500 Cities in USA"
+title: " <b>The Happy Cities:</b> <br> Factors Associated with Geographic Variation in Mental Health Status across 500 Cities in USA"
 output: 
   html_document:
     toc: true
     toc_float: true
 ---
 
+
 <center>
 <figure>
-<img src = "images/brain_pic.png" style = "width:75%">
+<img src = "images/brain_pic.png" style = "width:60%">
 
 *Image from* [*SARCOIDOSIS UK*](https://www.sarcoidosisuk.org/support/sarcoidosis-and-mental-health/)
 </figure>
@@ -46,35 +47,3 @@ Thre is also data on unhealthy behaviors such as drinking, smoking, and obesity.
 ### Ford Holland | Yongmei Huang | Jessica Lavery | Kylie Riley
 
 #### jfh2150, yh2736, jl4443, kmw2189
-=======
----
-title: "The Happy Cities: Geographic variation in unhealthy behaviors and mental health across 500 cities in the U.S.A"
-output: 
-  html_document:
-    toc: true
-    toc_float: true
----
-
-<center>
-<figure>
-<img src = "images/brain_pic.png" style = "width:75%">
-
-*Image from* [*SARCOIDOSIS UK*](https://www.sarcoidosisuk.org/support/sarcoidosis-and-mental-health/)
-</figure>
-</center>
-
-## Introduction
-
-The World Health Organization (WHO), defines mental health as “a state of well-being in which the individual realizes his or her own abilities, can cope with the normal stresses of life, can work productively and fruitfully, and is able to make a contribution to his or her community.” This definition demonstrates how mental health is an important aspect of overall wellness. Mental illness, however, is one of the most common medical statuses in the United States. In 2017 alone, 46.6 million Americans live with a mental illness, accounting for approximately 20% of the U.S. population. And, more than 10 million (4.6%) American adults had a serious mental illness which substantially interferes with or limit one or more major life activities. Geographic variation in mental health has drawn attention in the health care community.  In a recent report, most of the best cities for mental health are located in the West or Midwest, and none are located in the Northeast. Mental health and many common mental disorders are shaped to a great extent by the social, economic, and physical environments in which people live. Factors that potentially contribute to the variation are not well understood and need further study. With this project we wanted to better understand what behaviors are positively associated with mental health and the distribution of rates of mental health in the United States. 
-
-## Presentation
-
-## Data
-This project utilizes data from the [500 cities dataset](https://www.cdc.gov/500cities/index.htm), publicly available for download [here](https://catalog.data.gov/dataset/500-cities-local-data-for-better-health-fc759). The data are based on the [Behavioral Risk Factor Surveillance System (BRFSS)](https://www.cdc.gov/brfss/) survey, which is a national survey of adults' behavior surrounding their health (risk behavior, use of preventative services, chronic conditions). 
-
-Data are summarized using small area estimation methods and are not reported on the individual level, but at the census-tract level and include geographic identifiers such as latitude and longitude, city Federal Information Processing Standards (FIPS) and census tract FIPS. 
-
-The 500 cities data source includes health data on outcomes such as asthma, arthritis, cancer, heart disease, and mental health. To assess mental health, respondents aged ≥18 years were asked if 14 or more days out of the past 30 days their mental health was not good.
-
-
-There is also data on unhealthy behaviors such as drinking, smoking, and obesity. 
